@@ -94,19 +94,28 @@
               <input type="tel" id="emgPhone" name="emgPhone" placeholder="090-0000-0000" required />
             </div>
 
-            <div class="form-row">
-              <div class="form-group flex-1">
-                <label for="emgZip">郵便番号 <span class="required">必須</span></label>
-                <div class="input-with-button">
-                  <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
-                  <button type="button" id="emgZipSearch" class="search-btn">住所をさがす</button>
+            <div class="form-group mb-2 mt-2">
+              <label class="checkbox-label" style="cursor: pointer; display: flex; align-items: center; border: 2px dashed #80CBC4; padding: 1rem; border-radius: 12px; background: #F0FDFA; transition: all 0.2s;">
+                <input type="checkbox" id="emgSameAsEmp" style="transform: scale(1.4); margin-right: 0.8rem; accent-color: var(--primary);"> 
+                <span style="font-weight: bold; color: #0D9488; font-size: 1.05rem;">🏠 ご自身の住所と同じにする</span>
+              </label>
+            </div>
+
+            <div id="emgAddressGroup">
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="emgZip">郵便番号 <span class="required">必須</span></label>
+                  <div class="input-with-button">
+                    <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
+                    <button type="button" id="emgZipSearch" class="search-btn">住所をさがす</button>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="emgAddress">ご住所 <span class="required">必須</span></label>
-              <input type="text" id="emgAddress" name="emgAddress" placeholder="あなたと同じ場合は省略せずご記入ください" required />
+              
+              <div class="form-group">
+                <label for="emgAddress">ご住所 <span class="required">必須</span></label>
+                <input type="text" id="emgAddress" name="emgAddress" placeholder="（例）東京都千代田区千代田1-1" required />
+              </div>
             </div>
           </section>
 

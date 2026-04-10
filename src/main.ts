@@ -30,6 +30,9 @@ const emgZipSearch = document.getElementById('emgZipSearch') as HTMLButtonElemen
 const emgZip = document.getElementById('emgZip') as HTMLInputElement;
 const emgAddress = document.getElementById('emgAddress') as HTMLInputElement;
 
+const emgSameAsEmp = document.getElementById('emgSameAsEmp') as HTMLInputElement;
+const emgAddressGroup = document.getElementById('emgAddressGroup') as HTMLDivElement;
+
 const btnShowFamilyTree = document.getElementById('btnShowFamilyTree') as HTMLButtonElement;
 const familyTreeModal = document.getElementById('familyTreeModal') as HTMLDivElement;
 const closeModal = document.getElementById('closeModal') as HTMLSpanElement;
@@ -136,6 +139,19 @@ async function searchAddress(zipInput: HTMLInputElement, addressInput: HTMLInput
 empZipSearch.addEventListener('click', () => searchAddress(empZip, empAddress));
 emgZipSearch.addEventListener('click', () => searchAddress(emgZip, emgAddress));
 
+// --- 緊急連絡先の住所スキップ処理 ---
+emgSameAsEmp.addEventListener('change', (e) => {
+  const isChecked = (e.target as HTMLInputElement).checked;
+  if (isChecked) {
+    emgAddressGroup.style.display = 'none';
+    emgZip.removeAttribute('required');
+    emgAddress.removeAttribute('required');
+  } else {
+    emgAddressGroup.style.display = 'block';
+    emgZip.setAttribute('required', 'true');
+    emgAddress.setAttribute('required', 'true');
+  }
+});
 
 // --- モーダル (親等早見表) ---
 btnShowFamilyTree.addEventListener('click', () => {
@@ -305,8 +321,8 @@ registrationForm.addEventListener('submit', async (e: Event) => {
       name: formData.get('emgName'),
       relation: formData.get('emgRelation'),
       phone: formData.get('emgPhone'),
-      zip: formData.get('emgZip'),
-      address: formData.get('emgAddress')
+      zip: emgSameAsEmp.checked ? formData.get('empZip') : formData.get('emgZip'),
+      address: emgSameAsEmp.checked ? formData.get('empAddress') : formData.get('emgAddress')
     };
     
     // 家族情報
