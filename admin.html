@@ -137,7 +137,17 @@
               <div class="info-row"><span class="info-label">生年月日 (年齢)</span><span class="info-value" id="detailBirth"></span></div>
               <div class="info-row"><span class="info-label">入社日</span><span class="info-value" id="detailJoinDate"></span></div>
               <div class="info-row"><span class="info-label">退社日</span><span class="info-value" id="detailLeaveDate"></span></div>
-              <div class="info-row"><span class="info-label">住所</span><span class="info-value" id="detailAddress"></span></div>
+              <div class="info-row" style="flex-direction: column; align-items: flex-start; border-bottom: none; padding-bottom: 0;">
+                <div style="display: flex; width: 100%;">
+                  <span class="info-label">現住所</span>
+                  <span class="info-value" id="detailAddress" style="flex: 1;"></span>
+                </div>
+                <button id="btnToggleAddressHistory" class="action-btn" style="display: none; margin-top: 0.5rem; font-size: 0.75rem; padding: 0.2rem 0.5rem; background: #6B7280; align-self: flex-end;">📜 過去の履歴</button>
+              </div>
+              <div id="addressHistoryContainer" style="display: none; background: #f9fafb; padding: 0.5rem; margin-top: 0.5rem; border-radius: 4px; font-size: 0.85rem; border: 1px solid #e5e7eb; width: 100%; box-sizing: border-box; margin-bottom: 0.8rem;">
+                <ul id="addressHistoryList" style="margin: 0; padding-left: 1.2rem; color: #4B5563;"></ul>
+              </div>
+              <div style="border-bottom: 1px dashed #e5e7eb; margin-bottom: 0.8rem; width: 100%;"></div>
               <h5 style="margin-top: 1.5rem; margin-bottom: 0.5rem; color: #ef4444;">🚨 緊急連絡先</h5>
               <div class="info-row"><span class="info-label">名前 (続柄)</span><span class="info-value" id="detailEmgName"></span></div>
               <div class="info-row"><span class="info-label">電話番号</span><span class="info-value" id="detailEmgPhone"></span></div>
@@ -239,12 +249,38 @@
         <form id="familyForm">
           <div class="form-group">
             <label>続柄（関係） <span class="req-badge required" style="font-size: 0.7rem;">必須</span></label>
-            <input type="text" id="famRelationInput" placeholder="例：配偶者、子、孫 など" required style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.5rem; margin-bottom: 1rem; box-sizing: border-box;">
+            <select id="famRelationInput" required style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.5rem; margin-bottom: 1rem; box-sizing: border-box;">
+              <option value="">（選択してください）</option>
+              <option value="配偶者">配偶者</option>
+              <option value="子">子</option>
+              <option value="父">父</option>
+              <option value="母">母</option>
+              <option value="祖父">祖父</option>
+              <option value="祖母">祖母</option>
+              <option value="その他">その他</option>
+            </select>
           </div>
           
           <div class="form-group">
-            <label>生年月日（または年齢） <span class="req-badge required" style="font-size: 0.7rem;">必須</span></label>
-            <input type="text" id="famBirthInput" placeholder="例：1990-01-01 または 不明(5歳)" required style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.5rem; margin-bottom: 1rem; box-sizing: border-box;">
+            <label>生年月日 <span class="req-badge required" style="font-size: 0.7rem;">必須</span></label>
+            <div class="date-group" id="famEditDateGroup" style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center;">
+              <select id="famAddYear" class="fam-year" required style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc;"></select> <span class="date-sep">年</span>
+              <select id="famAddMonth" class="fam-month" required style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc;"></select> <span class="date-sep">月</span>
+              <select id="famAddDay" class="fam-day" required style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc;"></select> <span class="date-sep">日</span>
+            </div>
+            
+            <div style="margin-top: 0.5rem;">
+              <label style="font-weight: normal; font-size: 0.9rem; cursor: pointer;">
+                <input type="checkbox" id="famAddUnknownCheck"> 生年月日が不明な場合
+              </label>
+            </div>
+            
+            <div id="famAddApproxAgeGroup" style="display: none; margin-top: 0.5rem;">
+              <label>おおよその年齢</label>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="number" id="famAddApproxAge" placeholder="例: 30" style="width: 100px; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc;"> 歳
+              </div>
+            </div>
           </div>
           
           <div class="form-group">
@@ -291,8 +327,16 @@
           </div>
 
           <div class="form-group">
-            <label>住所</label>
-            <input type="text" id="editAddress">
+            <label>郵便番号で住所を上書き</label>
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <input type="text" id="editEmpZip" placeholder="1000001 (ハイフンなし)" style="flex: 1;" maxlength="7">
+              <button type="button" id="btnEditSearchZip" class="btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">検索して入力</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>現住所 (郵便番号を含むフル住所)</label>
+            <input type="text" id="editAddress" required>
           </div>
 
           <div style="display: flex; gap: 1rem; margin-top: 2rem;">

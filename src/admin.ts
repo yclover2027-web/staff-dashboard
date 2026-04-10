@@ -31,9 +31,26 @@ const detailBirth = document.getElementById('detailBirth') as HTMLSpanElement;
 const detailJoinDate = document.getElementById('detailJoinDate') as HTMLSpanElement;
 const detailLeaveDate = document.getElementById('detailLeaveDate') as HTMLSpanElement;
 const detailAddress = document.getElementById('detailAddress') as HTMLSpanElement;
+const btnToggleAddressHistory = document.getElementById('btnToggleAddressHistory') as HTMLButtonElement;
+const addressHistoryContainer = document.getElementById('addressHistoryContainer') as HTMLDivElement;
+const addressHistoryList = document.getElementById('addressHistoryList') as HTMLUListElement;
 const detailEmgName = document.getElementById('detailEmgName') as HTMLSpanElement;
 const detailEmgPhone = document.getElementById('detailEmgPhone') as HTMLSpanElement;
 const detailEmgAddress = document.getElementById('detailEmgAddress') as HTMLSpanElement;
+
+// 家族追加モーダル新規用
+const famRelationInput = document.getElementById('famRelationInput') as HTMLSelectElement;
+const famAddYear = document.getElementById('famAddYear') as HTMLSelectElement;
+const famAddMonth = document.getElementById('famAddMonth') as HTMLSelectElement;
+const famAddDay = document.getElementById('famAddDay') as HTMLSelectElement;
+const famAddUnknownCheck = document.getElementById('famAddUnknownCheck') as HTMLInputElement;
+const famEditDateGroup = document.getElementById('famEditDateGroup') as HTMLDivElement;
+const famAddApproxAgeGroup = document.getElementById('famAddApproxAgeGroup') as HTMLDivElement;
+const famAddApproxAge = document.getElementById('famAddApproxAge') as HTMLInputElement;
+
+// 郵便番号検索用
+const editEmpZip = document.getElementById('editEmpZip') as HTMLInputElement;
+const btnEditSearchZip = document.getElementById('btnEditSearchZip') as HTMLButtonElement;
 
 // Sub Lists
 const familyList = document.getElementById('familyList') as HTMLUListElement;
@@ -252,6 +269,39 @@ function selectEmployee(empId: string) {
   detailJoinDate.textContent = `${formattedJoin} ${tenure}`;
   detailLeaveDate.textContent = formattedLeave;
   detailAddress.textContent = emp['住所'] || '-';
+
+  // 住所履歴
+  let hasHistory = false;
+  addressHistoryList.innerHTML = '';
+  if (emp['住所履歴']) {
+    try {
+      const historyArr = JSON.parse(emp['住所履歴']);
+      if (Array.isArray(historyArr) && historyArr.length > 0) {
+        hasHistory = true;
+        // 新しい順に表示
+        [...historyArr].reverse().forEach((item: any) => {
+          const li = document.createElement('li');
+          li.style.marginBottom = '0.3rem';
+          li.innerHTML = `<strong>${item.date} まで:</strong> ${item.address}`;
+          addressHistoryList.appendChild(li);
+        });
+      }
+    } catch (e) {
+      // JSONじゃなかった場合
+      hasHistory = true;
+      const li = document.createElement('li');
+      li.textContent = String(emp['住所履歴']);
+      addressHistoryList.appendChild(li);
+    }
+  }
+
+  if (hasHistory) {
+    btnToggleAddressHistory.style.display = 'block';
+  } else {
+    btnToggleAddressHistory.style.display = 'none';
+  }
+  addressHistoryContainer.style.display = 'none';
+  btnToggleAddressHistory.textContent = '📜 過去の履歴';
 
   // 緊急連絡先
   detailEmgName.textContent = `${emp['緊急連絡先_名前'] || '-'} (${emp['緊急連絡先_続柄'] || '-'})`;
@@ -597,13 +647,20 @@ familyForm.addEventListener('submit', async (e) => {
   let livingVal = "";
   livingRadios.forEach(r => { if (r.checked) livingVal = r.value; });
 
+  let birthStr = "";
+  if (famAddUnknownCheck.checked) {
+    birthStr = "不明(" + famAddApproxAge.value + "歳)";
+  } else {
+    birthStr = `${famAddYear.value}-${famAddMonth.value}-${famAddDay.value}`;
+  }
+
   const payload = {
     action: "addFamily",
     password: currentPassword,
     empId: currentSelectedEmpId,
     data: {
-      relation: (document.getElementById('famRelationInput') as HTMLInputElement).value,
-      birthdate: (document.getElementById('famBirthInput') as HTMLInputElement).value,
+      relation: famRelationInput.value,
+      birthdate: birthStr,
       living: livingVal
     }
   };
@@ -656,3 +713,97 @@ async function deleteFamily(familyId: string) {
     globalLoader.style.display = 'none';
   }
 }
+
+// ------------------------------------------
+// --- その他 UIイベント (住所履歴・郵便番号など) ---
+// ------------------------------------------
+btnToggleAddressHistory.addEventListener('click', () => {
+  if (addressHistoryContainer.style.display === 'none') {
+    addressHistoryContainer.style.display = 'block';
+    btnToggleAddressHistory.textContent = '▲ 閉じる';
+  } else {
+    addressHistoryContainer.style.display = 'none';
+    btnToggleAddressHistory.textContent = '📜 過去の履歴';
+  }
+});
+
+btnEditSearchZip.addEventListener('click', async () => {
+  const zip = editEmpZip.value.replace(/-/g, '');
+  if (zip.length !== 7) {
+    alert('郵便番号はハイフンなしの7桁で入力してください。');
+    return;
+  }
+  const orgText = btnEditSearchZip.textContent;
+  btnEditSearchZip.textContent = "検索中...";
+  btnEditSearchZip.disabled = true;
+  try {
+    const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
+    const data = await res.json();
+    if (data.status === 200 && data.results) {
+      const addr = data.results[0];
+      const editAddress = document.getElementById('editAddress') as HTMLInputElement;
+      editAddress.value = "〒" + zip + " " + addr.address1 + addr.address2 + addr.address3;
+    } else {
+      alert('住所が見つかりませんでした。郵便番号を確認してください。');
+    }
+  } catch (err) {
+    alert('通信エラーが発生しました。');
+  } finally {
+    btnEditSearchZip.textContent = orgText;
+    btnEditSearchZip.disabled = false;
+  }
+});
+
+// 家族モーダルを開いたときのドラムロール初期化
+btnOpenFamilyModal.addEventListener('click', () => {
+  famRelationInput.value = "";
+  famAddYear.innerHTML = '<option value="">年</option>';
+  famAddMonth.innerHTML = '<option value="">月</option>';
+  famAddDay.innerHTML = '<option value="">日</option>';
+
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= 1930; y--) {
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = String(y);
+    famAddYear.appendChild(opt);
+  }
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = String(m).padStart(2, '0');
+    famAddMonth.appendChild(opt);
+  }
+  for (let d = 1; d <= 31; d++) {
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = String(d).padStart(2, '0');
+    famAddDay.appendChild(opt);
+  }
+
+  famAddUnknownCheck.checked = false;
+  famEditDateGroup.style.display = 'flex';
+  famAddApproxAgeGroup.style.display = 'none';
+  famAddYear.setAttribute('required', 'true');
+  famAddMonth.setAttribute('required', 'true');
+  famAddDay.setAttribute('required', 'true');
+  famAddApproxAge.removeAttribute('required');
+  famAddApproxAge.value = '';
+});
+
+famAddUnknownCheck.addEventListener('change', (e) => {
+  const isChecked = (e.target as HTMLInputElement).checked;
+  if (isChecked) {
+    famEditDateGroup.style.display = 'none';
+    famAddYear.removeAttribute('required');
+    famAddMonth.removeAttribute('required');
+    famAddDay.removeAttribute('required');
+    famAddApproxAgeGroup.style.display = 'block';
+    famAddApproxAge.setAttribute('required', 'true');
+  } else {
+    famAddApproxAgeGroup.style.display = 'none';
+    famAddApproxAge.removeAttribute('required');
+    famAddApproxAge.value = '';
+    famEditDateGroup.style.display = 'flex';
+    famAddYear.setAttribute('required', 'true');
+    famAddMonth.setAttribute('required', 'true');
+    famAddDay.setAttribute('required', 'true');
+  }
+});
