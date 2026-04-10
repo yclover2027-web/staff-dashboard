@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzSmzgZhynNx8i6Xjq6qpednQEjULRAFcHG_8E0eOyCOZJynMlH_oA4ho7h7Bf21L94Lw/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzqJxxy-G1_hfwkMnhDINWfESRNcucUDMflpjXU4O70DFw_MC2fk0Ve7CsG_S1N00FZTg/exec";
 
 // DOM Elements
 const loginScreen = document.getElementById('loginScreen') as HTMLDivElement;
@@ -11,6 +11,16 @@ const empList = document.getElementById('empList') as HTMLUListElement;
 const btnRefresh = document.getElementById('btnRefresh') as HTMLButtonElement;
 
 const globalLoader = document.getElementById('globalLoader') as HTMLDivElement;
+const empSearchInput = document.getElementById('empSearchInput') as HTMLInputElement;
+
+// 家族Modal
+const btnOpenFamilyModal = document.getElementById('btnOpenFamilyModal') as HTMLButtonElement;
+const familyModal = document.getElementById('familyModal') as HTMLDivElement;
+const btnCancelFamily = document.getElementById('btnCancelFamily') as HTMLButtonElement;
+const familyForm = document.getElementById('familyForm') as HTMLFormElement;
+const familyTargetEmpName = document.getElementById('familyTargetEmpName') as HTMLParagraphElement;
+const submitFamilyLoader = document.getElementById('submitFamilyLoader') as HTMLDivElement;
+const submitFamilyText = document.getElementById('submitFamilyText') as HTMLSpanElement;
 
 // Detail Area
 const empDetailContainer = document.getElementById('empDetailContainer') as HTMLDivElement;
@@ -135,6 +145,10 @@ btnRefresh.addEventListener('click', async () => {
   await loadDashboardData();
 });
 
+empSearchInput.addEventListener('input', () => {
+  renderEmployeeList();
+});
+
 // データ取得と描画
 async function loadDashboardData() {
   loginError.style.display = 'none';
@@ -181,7 +195,25 @@ async function loadDashboardData() {
 // 従業員リストの描画
 function renderEmployeeList() {
   empList.innerHTML = '';
-  appData.employees.forEach((emp: any) => {
+  const searchWord = empSearchInput.value.toLowerCase().trim();
+
+  // フリガナ（無い場合は名前）でソート（あいうえお順）
+  let sortedEmp = [...appData.employees].sort((a: any, b: any) => {
+    const kanaA = a['フリガナ'] || String(a['お名前'] || '');
+    const kanaB = b['フリガナ'] || String(b['お名前'] || '');
+    return kanaA.localeCompare(kanaB, 'ja');
+  });
+
+  // 検索フィルタリング
+  if (searchWord) {
+    sortedEmp = sortedEmp.filter((emp: any) => {
+      const name = emp['お名前'] || '';
+      const kana = emp['フリガナ'] || '';
+      return name.toLowerCase().includes(searchWord) || kana.toLowerCase().includes(searchWord);
+    });
+  }
+
+  sortedEmp.forEach((emp: any) => {
     const li = document.createElement('li');
     li.className = `emp-item ${emp['従業員ID'] === currentSelectedEmpId ? 'active' : ''}`;
     li.textContent = emp['お名前'] || '名前なし';
@@ -198,7 +230,6 @@ function selectEmployee(empId: string) {
   const emp = appData.employees.find((e: any) => e['従業員ID'] === empId);
   if (!emp) return;
 
-  // 基本情報編集用データをセット
   (document.getElementById('editJoinDate') as HTMLInputElement).value = emp['入社日'] ? formatDateString(emp['入社日']).replace(/\//g, '-') : '';
   (document.getElementById('editLeaveDate') as HTMLInputElement).value = emp['退社日'] ? formatDateString(emp['退社日']).replace(/\//g, '-') : '';
   (document.getElementById('editBirthDate') as HTMLInputElement).value = emp['生年月日'] || '';
@@ -238,11 +269,22 @@ function selectEmployee(empId: string) {
       const famAge = calculateAge(fam['生年月日']);
       const famFormattedBirth = formatDateString(fam['生年月日']);
       li.innerHTML = `
-        <div class="sub-item-title">${fam['続柄']}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #CCFBF1; padding-bottom: 0.2rem; margin-bottom: 0.5rem;">
+          <span class="sub-item-title" style="border: none; margin: 0; padding: 0;">${fam['続柄']}</span>
+          <button class="btnDeleteFamily" data-id="${fam['家族情報ID']}" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; opacity: 0.6; padding: 0.2rem;" title="削除する">🗑️</button>
+        </div>
         <div class="info-row"><span class="info-label">生年月日(年齢)</span><span class="info-value">${famFormattedBirth} (${famAge}歳)</span></div>
         <div class="info-row"><span class="info-label">同居</span><span class="info-value">${fam['同居の有無']}</span></div>
       `;
       familyList.appendChild(li);
+    });
+    
+    // 家族削除イベントのバインド
+    document.querySelectorAll('.btnDeleteFamily').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = (e.currentTarget as HTMLButtonElement).getAttribute('data-id');
+        if (id) deleteFamily(id);
+      });
     });
   } else {
     noFamilyMsg.style.display = 'block';
@@ -523,3 +565,94 @@ salaryForm.addEventListener('submit', async (e) => {
     submitSalaryBtn.textContent = '💾 保存して蓄積する';
   }
 });
+
+// ------------------------------------------
+// --- 家族 モーダル表示制御 ---
+// ------------------------------------------
+btnOpenFamilyModal.addEventListener('click', () => {
+  if (!currentSelectedEmpId) {
+    alert("左のリストから対象の従業員を選択してください。");
+    return;
+  }
+  const emp = appData.employees.find((e: any) => e['従業員ID'] === currentSelectedEmpId);
+  if (!emp) return;
+  familyTargetEmpName.textContent = `${emp['お名前']} さんの家族`;
+  familyModal.style.display = 'flex';
+});
+
+btnCancelFamily.addEventListener('click', () => {
+  familyModal.style.display = 'none';
+  familyForm.reset();
+});
+
+familyForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentSelectedEmpId) return;
+  
+  submitFamilyText.style.display = 'none';
+  submitFamilyLoader.style.display = 'inline-block';
+  (document.getElementById('btnSubmitFamily') as HTMLButtonElement).disabled = true;
+
+  const livingRadios = document.getElementsByName('famLiving') as NodeListOf<HTMLInputElement>;
+  let livingVal = "";
+  livingRadios.forEach(r => { if (r.checked) livingVal = r.value; });
+
+  const payload = {
+    action: "addFamily",
+    password: currentPassword,
+    empId: currentSelectedEmpId,
+    data: {
+      relation: (document.getElementById('famRelationInput') as HTMLInputElement).value,
+      birthdate: (document.getElementById('famBirthInput') as HTMLInputElement).value,
+      living: livingVal
+    }
+  };
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.status === "success") {
+      familyModal.style.display = 'none';
+      familyForm.reset();
+      await loadDashboardData(); // 再取得・描画
+    } else {
+      alert("エラー: " + result.message);
+    }
+  } catch (err) {
+    alert("通信に失敗しました。");
+  } finally {
+    submitFamilyText.style.display = 'inline';
+    submitFamilyLoader.style.display = 'none';
+    (document.getElementById('btnSubmitFamily') as HTMLButtonElement).disabled = false;
+  }
+});
+
+// --- 家族 削除 ---
+async function deleteFamily(familyId: string) {
+  if (!confirm("本当にこの家族情報を削除しますか？\n(一度消すと元に戻せません)")) return;
+  
+  globalLoader.style.display = 'flex';
+  const payload = { action: "deleteFamily", password: currentPassword, familyId: familyId };
+  
+  try {
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.status === "success") {
+      await loadDashboardData();
+    } else {
+      alert("エラー: " + result.message);
+    }
+  } catch(err) {
+    alert("削除の通信に失敗しました。");
+  } finally {
+    globalLoader.style.display = 'none';
+  }
+}

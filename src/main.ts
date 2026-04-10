@@ -1,7 +1,7 @@
 import './style.css'
 
 // GASのURL
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzSmzgZhynNx8i6Xjq6qpednQEjULRAFcHG_8E0eOyCOZJynMlH_oA4ho7h7Bf21L94Lw/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzqJxxy-G1_hfwkMnhDINWfESRNcucUDMflpjXU4O70DFw_MC2fk0Ve7CsG_S1N00FZTg/exec";
 
 // --- DOM Elements ---
 const topMenu = document.getElementById('topMenu') as HTMLDivElement;
@@ -497,6 +497,7 @@ registrationForm.addEventListener('submit', async (e: Event) => {
       data: {
         formType: formData.get('formType'),
         name: formData.get('empName'),
+        nameKana: formData.get('empNameKana'),
         birthdate: empBirthDateStr,
         address: empZipStr + (formData.get('empAddress') || ''),
         emergency_name: formData.get('emgName') || '',

@@ -111,6 +111,7 @@
       <!-- 左：社員リスト -->
       <div class="sidebar">
         <h3>👥 従業員リスト <button id="btnRefresh" class="action-btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">↻ 更新</button></h3>
+        <input type="text" id="empSearchInput" placeholder="🔍 名前・フリガナで検索..." style="width: 100%; padding: 0.8rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
         <ul id="empList" class="emp-list">
           <!-- JSで自動生成 -->
         </ul>
@@ -145,7 +146,10 @@
 
             <!-- 家族構成カード -->
             <div class="dash-card">
-              <h4>👨‍👩‍👧‍👦 家族構成</h4>
+              <h4>
+                👨‍👩‍👧‍👦 家族構成
+                <button id="btnOpenFamilyModal" class="action-btn">＋ 新規追加</button>
+              </h4>
               <ul id="familyList" class="sub-list">
                 <!-- JSで自動生成 -->
               </ul>
@@ -216,8 +220,47 @@
           </div>
 
           <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="button" id="closeSalaryModal" class="btn" style="background: #e5e7eb; color: #4B5563;">やめる</button>
-            <button type="submit" id="submitSalaryBtn" class="btn" style="flex: 2;">💾 保存して蓄積する</button>
+            <button type="button" id="btnCancelSalary" class="btn" style="flex: 1; background: #e5e7eb; color: #4B5563;">キャンセル</button>
+            <button type="submit" id="btnSubmitSalary" class="btn" style="flex: 1; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+              <span id="submitSalaryText">保存する</span>
+              <div class="spinner" id="submitSalaryLoader" style="display: none; border-top-color: white; border-width: 2px; width: 15px; height: 15px;"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 👨‍👩‍👧‍👦 家族追加モーダル -->
+    <div id="familyModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center;">
+      <div class="salary-modal-box slide-in">
+        <h3 style="color: #0D9488; margin-top: 0; margin-bottom: 1.5rem; text-align: center;">＋ 家族の追加</h3>
+        <p style="text-align: center; color: #6B7280; font-weight: bold; margin-bottom: 1.5rem;" id="familyTargetEmpName"></p>
+        
+        <form id="familyForm">
+          <div class="form-group">
+            <label>続柄（関係） <span class="req-badge required" style="font-size: 0.7rem;">必須</span></label>
+            <input type="text" id="famRelationInput" placeholder="例：配偶者、子、孫 など" required style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.5rem; margin-bottom: 1rem; box-sizing: border-box;">
+          </div>
+          
+          <div class="form-group">
+            <label>生年月日（または年齢） <span class="req-badge required" style="font-size: 0.7rem;">必須</span></label>
+            <input type="text" id="famBirthInput" placeholder="例：1990-01-01 または 不明(5歳)" required style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.5rem; margin-bottom: 1rem; box-sizing: border-box;">
+          </div>
+          
+          <div class="form-group">
+            <label>同居の有無 <span class="req-badge required" style="font-size: 0.7rem;">必須</span></label>
+            <div style="margin-top: 0.5rem; margin-bottom: 1.5rem; display: flex; gap: 1.5rem;">
+              <label style="cursor: pointer;"><input type="radio" name="famLiving" value="はい" required style="width: auto; margin-right: 0.5rem;"> はい</label>
+              <label style="cursor: pointer;"><input type="radio" name="famLiving" value="いいえ" style="width: auto; margin-right: 0.5rem;"> いいえ</label>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="button" id="btnCancelFamily" class="btn" style="flex: 1; background: #e5e7eb; color: #4B5563;">キャンセル</button>
+            <button type="submit" id="btnSubmitFamily" class="btn" style="flex: 1; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+              <span id="submitFamilyText">保存する</span>
+              <div class="spinner" id="submitFamilyLoader" style="display: none; border-top-color: white; border-width: 2px; width: 15px; height: 15px;"></div>
+            </button>
           </div>
         </form>
       </div>
