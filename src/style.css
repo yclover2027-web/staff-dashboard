@@ -1,19 +1,20 @@
 :root {
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
-  --secondary: #10B981;
-  --secondary-hover: #059669;
-  --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-  --bg-color: #f3f4f6;
-  --text-dark: #1F2937;
+  /* 柔らかいパステル調のカラーパレットに変更 */
+  --primary: #5AB4B4;       /* 優しいブルーグリーン */
+  --primary-hover: #459E9E;
+  --secondary: #F0A500;     /* 暖かみのあるオレンジイエロー */
+  --secondary-hover: #D89500;
+  --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  --bg-color: #F9FAFB;
+  --text-dark: #374151;
   --text-light: #6B7280;
   --white: #FFFFFF;
-  --error: #EF4444;
-  --border: #d1d5db;
+  --error: #F43F5E;         /* 少し柔らかい赤 */
+  --border: #E5E7EB;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --radius: 16px;
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.05);
+  --radius: 20px; /* 角を全体的にもっと丸く */
 }
 
 * {
@@ -23,7 +24,8 @@
 }
 
 body {
-  font-family: 'Noto Sans JP', sans-serif;
+  /* 丸みのあるフォント */
+  font-family: 'Zen Maru Gothic', sans-serif;
   background: var(--bg-color);
   background-image: var(--bg-gradient);
   color: var(--text-dark);
@@ -40,14 +42,8 @@ body {
   max-width: 600px;
 }
 
-.text-center {
-  text-align: center;
-}
-
-.mb-2 {
-  margin-bottom: 1rem;
-}
-
+.text-center { text-align: center; }
+.mb-2 { margin-bottom: 1rem; }
 .mt-1 { margin-top: 1rem; }
 .mt-2 { margin-top: 2rem; }
 
@@ -55,25 +51,29 @@ body {
 .app-header {
   text-align: center;
   margin-bottom: 2rem;
-  color: var(--text-dark);
+  color: var(--primary);
 }
 
 .app-header h1 {
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+  line-height: 1.3;
+}
+
+.soft-title {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
 }
 
 /* Glassmorphism Form container */
 .glass-form {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: var(--radius);
   padding: 2.5rem 2rem;
   box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 4px solid #ffffff; /* ぽってりとした白いフチドリ */
 }
 
 /* トップメニュー */
@@ -88,21 +88,22 @@ body {
   width: 100%;
   padding: 1.25rem;
   border: none;
-  border-radius: 12px;
-  font-size: 1.125rem;
+  border-radius: 50px; /* 完全に丸いボタン */
+  font-size: 1.15rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.1); /* 立体感のある押しボタン */
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.75rem;
+  font-family: inherit;
 }
 
 .menu-btn:active {
-  transform: translateY(2px);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(4px);
+  box-shadow: 0 0 0 rgba(0,0,0,0.1);
 }
 
 .primary-btn {
@@ -118,7 +119,7 @@ body {
 .secondary-btn:hover { background-color: var(--secondary-hover); }
 
 .back-btn {
-  background: none;
+  background: #F3F4F6;
   border: none;
   color: var(--text-light);
   font-weight: 700;
@@ -126,19 +127,22 @@ body {
   margin-bottom: 1.5rem;
   display: inline-flex;
   align-items: center;
-  transition: color 0.2s;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: all 0.2s;
+  font-family: inherit;
 }
-.back-btn:hover { color: var(--text-dark); }
+.back-btn:hover { background: #E5E7EB; color: var(--text-dark); }
 
 .form-main-title {
   text-align: center;
   font-size: 1.4rem;
   margin-bottom: 2rem;
   color: var(--primary);
-  border-bottom: 2px dashed #CBD5E1;
-  padding-bottom: 1rem;
+  background: #E0F2F1;
+  padding: 0.75rem;
+  border-radius: 12px;
 }
-
 
 /* sections */
 .form-section {
@@ -148,7 +152,7 @@ body {
 .section-title {
   font-size: 1.2rem;
   font-weight: 700;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 3px solid #E0F2F1;
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
   display: flex;
@@ -158,32 +162,33 @@ body {
 }
 
 .section-desc {
-  font-size: 0.85rem;
-  color: #4B5563;
+  font-size: 0.9rem;
+  color: var(--text-light);
 }
 
 .info-box {
-  background: #EFF6FF;
-  border-left: 4px solid var(--primary);
+  background: #FFFBF0;
+  border: 2px solid #FDE68A;
   padding: 1rem;
-  border-radius: 0 8px 8px 0;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
 }
 .info-box p {
   font-size: 0.85rem;
-  color: #1E3A8A;
+  color: #92400E;
   margin-bottom: 0.5rem;
 }
 
-/* リンクボタン (親等早見表用) */
+/* リンクボタン */
 .link-btn {
   background: none;
   border: none;
-  color: var(--primary);
+  color: #D97706;
   text-decoration: underline;
   font-weight: 700;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-family: inherit;
 }
 
 /* Form Groups */
@@ -196,37 +201,37 @@ body {
 
 label {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: #4B5563;
 }
 
 .required {
-  background-color: #FEE2E2;
-  color: #B91C1C;
-  font-size: 0.65rem;
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+  background-color: #FECDD3;
+  color: #BE123C;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
   vertical-align: middle;
   margin-left: 4px;
 }
 
 input[type="text"], input[type="email"], input[type="number"], input[type="date"], input[type="tel"], select {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
   font-size: 1rem;
   font-family: inherit;
-  background-color: #f8fafc;
+  background-color: #F9FAFB;
   transition: all 0.2s;
 }
 input:focus, select:focus {
   outline: none;
   background-color: var(--white);
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 0 0 4px rgba(90, 180, 180, 0.2);
 }
 
 /* 住所検索ボタングループ */
@@ -236,16 +241,17 @@ input:focus, select:focus {
 }
 .search-btn {
   white-space: nowrap;
-  background-color: #374151;
+  background-color: #9CA3AF;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 0 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-family: inherit;
 }
-.search-btn:hover { background-color: #1F2937; }
+.search-btn:hover { background-color: #6B7280; }
 
 /* Radio Group */
 .radio-group {
@@ -257,30 +263,30 @@ input:focus, select:focus {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
   flex: 1;
   justify-content: center;
+  transition: all 0.2s;
 }
 .radio-label:hover {
-  background: #EFF6FF;
-  border-color: #BFDBFE;
+  background: #E0F2F1;
+  border-color: #80CBC4;
 }
 .radio-label input[type="radio"] {
   accent-color: var(--primary);
-  transform: scale(1.2);
+  transform: scale(1.3);
 }
 
 /* 家族アイテム */
 .family-item {
-  background: var(--white);
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  padding: 1.25rem;
+  background: #FDFDFD;
+  border: 2px dashed #D1D5DB;
+  border-radius: 16px;
+  padding: 1.5rem;
   margin-bottom: 1.25rem;
-  border-left: 4px solid var(--primary);
   box-shadow: var(--shadow-sm);
 }
 
@@ -292,16 +298,18 @@ input:focus, select:focus {
 }
 .family-item-header h4 {
   color: var(--primary);
+  font-size: 1.1rem;
 }
 .remove-btn {
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
+  background: #FFF1F2;
+  border: 1px solid #FECDD3;
   color: var(--error);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-family: inherit;
 }
 
 .add-btn {
@@ -309,30 +317,39 @@ input:focus, select:focus {
   padding: 1rem;
   background-color: transparent;
   color: var(--primary);
-  border: 2px dashed #A5B4FC;
-  border-radius: 12px;
+  border: 2px dashed var(--primary);
+  border-radius: 16px;
   font-weight: 700;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.05rem;
   transition: all 0.2s;
+  font-family: inherit;
 }
 .add-btn:hover {
-  background-color: #EEF2FF;
-  border-color: var(--primary);
+  background-color: #E0F2F1;
 }
 
 /* 送信ボタン */
 .submit-btn {
   width: 100%;
-  padding: 1.125rem;
+  padding: 1.25rem;
   border: none;
-  border-radius: 12px;
-  font-size: 1.125rem;
+  border-radius: 50px;
+  font-size: 1.2rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 5px 0 #3b8e8e; /* primaryより濃い色で立体感 */
+}
+.submit-btn:hover {
+  transform: translateY(2px);
+  box-shadow: 0 3px 0 #3b8e8e;
+}
+.submit-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 0 0 #3b8e8e;
 }
 
 /* Success Message */
@@ -348,6 +365,10 @@ input:focus, select:focus {
   margin-bottom: 1rem;
   animation: bounce 1s infinite alternate;
 }
+.success-message h3 {
+  color: var(--primary);
+  font-size: 1.5rem;
+}
 
 /* モーダル (ポップアップ) */
 .modal {
@@ -358,8 +379,8 @@ input:focus, select:focus {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.6);
-  backdrop-filter: blur(4px);
+  background-color: rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
   justify-content: center;
   align-items: center;
   padding: 1rem;
@@ -367,9 +388,9 @@ input:focus, select:focus {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: #FFF;
   padding: 1.5rem;
-  border-radius: 16px;
+  border-radius: 20px;
   max-width: 500px;
   width: 100%;
   position: relative;
@@ -379,25 +400,26 @@ input:focus, select:focus {
 
 .modal-title {
   margin-bottom: 1rem;
-  color: var(--primary);
+  color: var(--text-dark);
 }
 
 .modal-img {
   width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .close-modal {
   position: absolute;
   top: 10px;
   right: 15px;
-  color: #aaa;
-  font-size: 28px;
+  color: #9CA3AF;
+  font-size: 32px;
   font-weight: bold;
   cursor: pointer;
+  line-height: 1;
 }
-.close-modal:hover { color: #000; }
+.close-modal:hover { color: var(--text-dark); }
 
 /* Animations */
 .slide-in { animation: slideDown 0.3s forwards; }
@@ -414,6 +436,20 @@ input:focus, select:focus {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Loader */
+.loader {
+  border: 4px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top: 4px solid var(--white);
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media (max-width: 640px) {
