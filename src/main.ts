@@ -26,7 +26,9 @@ const empZipSearch = document.getElementById('empZipSearch') as HTMLButtonElemen
 const empZip = document.getElementById('empZip') as HTMLInputElement;
 const empAddress = document.getElementById('empAddress') as HTMLInputElement;
 
-const emgZipSearch = document.getElementById('emgZipSearch') as HTMLButtonElement;
+const emgName = document.getElementById('emgName') as HTMLInputElement;
+const emgRelation = document.getElementById('emgRelation') as HTMLInputElement;
+const emgPhone = document.getElementById('emgPhone') as HTMLInputElement;
 const emgZip = document.getElementById('emgZip') as HTMLInputElement;
 const emgAddress = document.getElementById('emgAddress') as HTMLInputElement;
 
@@ -60,7 +62,11 @@ function getJapaneseYear(year: number): string {
   return '';
 }
 
-function initDatePicker(yearSel: HTMLSelectElement, monthSel: HTMLSelectElement, daySel: HTMLSelectElement, defaultYear = 1988) {
+function initDatePicker(yearSel: HTMLSelectElement, monthSel: HTMLSelectElement, daySel: HTMLSelectElement, defaultYear: number | null = 1988) {
+  yearSel.innerHTML = '<option value="">（選択）</option>';
+  monthSel.innerHTML = '<option value="">（選択）</option>';
+  daySel.innerHTML = '<option value="">（選択）</option>';
+
   const currentYear = new Date().getFullYear();
   
   // 年: 1930年〜今年まで
@@ -78,7 +84,7 @@ function initDatePicker(yearSel: HTMLSelectElement, monthSel: HTMLSelectElement,
     const opt = document.createElement('option');
     opt.value = String(m).padStart(2, '0');
     opt.textContent = String(m);
-    if (m === 1) opt.selected = true; // デフォルト1月
+    if (defaultYear && m === 1) opt.selected = true;
     monthSel.appendChild(opt);
   }
   
@@ -87,34 +93,119 @@ function initDatePicker(yearSel: HTMLSelectElement, monthSel: HTMLSelectElement,
     const opt = document.createElement('option');
     opt.value = String(d).padStart(2, '0');
     opt.textContent = String(d);
-    if (d === 1) opt.selected = true; // デフォルト1日
+    if (defaultYear && d === 1) opt.selected = true;
     daySel.appendChild(opt);
   }
 }
 
-// 従業員用の生年月日セレクトを初期化（デフォルト1988年1月1日）
 const empYear = document.getElementById('empYear') as HTMLSelectElement;
 const empMonth = document.getElementById('empMonth') as HTMLSelectElement;
 const empDay = document.getElementById('empDay') as HTMLSelectElement;
 const empAgeDisplay = document.getElementById('empAgeDisplay') as HTMLDivElement;
 
-initDatePicker(empYear, empMonth, empDay, 1988);
+initDatePicker(empYear, empMonth, empDay, null); // 変更モードのために初期値は必ず空にする
 
 function updateEmpAge() {
   const age = calculateAge(empYear.value, empMonth.value, empDay.value);
   if (age !== null) {
     empAgeDisplay.textContent = `（現在 ${age}歳）`;
+  } else {
+    empAgeDisplay.textContent = '';
   }
 }
 empYear.addEventListener('change', updateEmpAge);
 empMonth.addEventListener('change', updateEmpAge);
 empDay.addEventListener('change', updateEmpAge);
-updateEmpAge();
+
+// --- 必須・任意コントロール・連動 ---
+function setFieldRequired(id: string | HTMLInputElement | HTMLSelectElement, isRequired: boolean) {
+  const el = typeof id === 'string' ? document.getElementById(id) as HTMLInputElement | HTMLSelectElement : id;
+  if (!el) return;
+  
+  if (isRequired) {
+    el.setAttribute('required', 'true');
+  } else {
+    el.removeAttribute('required');
+  }
+
+  // ラベルのバッジ書き換え
+  let label: HTMLLabelElement | null = null;
+  if (el.id) label = document.querySelector(`label[for="${el.id}"]`);
+  if (!label && el.closest('.form-group')) {
+    label = el.closest('.form-group')!.querySelector('label');
+  }
+
+  // 特殊なラベル(生年月日など)への対応
+  if (!label && el.id === 'empYear') label = document.getElementById('labelEmpBirth') as HTMLLabelElement;
+
+  if (label) {
+    const badge = label.querySelector('.req-badge') as HTMLSpanElement;
+    if (badge) {
+      badge.className = `req-badge ${isRequired ? 'required' : 'optional'}`;
+      badge.textContent = isRequired ? '必須' : '任意';
+    }
+  }
+}
+
+function checkEmpBirthLink() {
+  if (formTypeInput.value !== 'update') return;
+  const hasValue = empYear.value !== '' || empMonth.value !== '' || empDay.value !== '';
+  setFieldRequired(empYear, hasValue);
+  setFieldRequired(empMonth, hasValue);
+  setFieldRequired(empDay, hasValue);
+}
+
+function checkEmpAddressLink() {
+  if (formTypeInput.value !== 'update') return;
+  const hasValue = empZip.value.length > 0 || empAddress.value.length > 0;
+  setFieldRequired(empZip, hasValue);
+  setFieldRequired(empAddress, hasValue);
+}
+
+function checkEmgLink() {
+  if (formTypeInput.value !== 'update') return;
+  const hasValue = emgName.value.length > 0 || emgRelation.value.length > 0 || emgPhone.value.length > 0 || emgZip.value.length > 0 || emgAddress.value.length > 0;
+  setFieldRequired(emgName, hasValue);
+  setFieldRequired(emgRelation, hasValue);
+  setFieldRequired(emgPhone, hasValue);
+  if (!emgSameAsEmp.checked) {
+    setFieldRequired(emgZip, hasValue);
+    setFieldRequired(emgAddress, hasValue);
+  }
+}
+
+// イベントリスナーの登録
+[empYear, empMonth, empDay].forEach(el => el.addEventListener('change', checkEmpBirthLink));
+[empZip, empAddress].forEach(el => el.addEventListener('input', checkEmpAddressLink));
+[emgName, emgRelation, emgPhone, emgZip, emgAddress].forEach(el => el.addEventListener('input', checkEmgLink));
+
+// フォームのリセットと必須項目の設定
+function setupFormMode(mode: 'new' | 'update') {
+  registrationForm.reset();
+  familyContainer.innerHTML = ''; // 家族をリセット
+  updateEmpAge();
+  
+  if (mode === 'new') {
+    // 新規登録：すべて必須
+    ['empYear', 'empMonth', 'empDay', 'empZip', 'empAddress', 'emgName', 'emgRelation', 'emgPhone', 'emgZip', 'emgAddress'].forEach(id => {
+      setFieldRequired(id, true);
+    });
+  } else {
+    // 変更：名前以外は任意
+    ['empYear', 'empMonth', 'empDay', 'empZip', 'empAddress', 'emgName', 'emgRelation', 'emgPhone', 'emgZip', 'emgAddress'].forEach(id => {
+      setFieldRequired(id, false);
+    });
+  }
+
+  emgAddressGroup.style.display = 'block';
+}
+
 
 // --- 画面切り替え ---
 btnNew.addEventListener('click', () => {
   formTypeInput.value = 'new';
   formTitle.textContent = '✨ 新規登録フォーム';
+  setupFormMode('new');
   topMenu.style.display = 'none';
   registrationForm.style.display = 'block';
   registrationForm.classList.add('slide-in');
@@ -123,6 +214,7 @@ btnNew.addEventListener('click', () => {
 btnUpdate.addEventListener('click', () => {
   formTypeInput.value = 'update';
   formTitle.textContent = '🔄 情報変更届フォーム';
+  setupFormMode('update');
   topMenu.style.display = 'none';
   registrationForm.style.display = 'block';
   registrationForm.classList.add('slide-in');
@@ -152,6 +244,8 @@ async function searchAddress(zipInput: HTMLInputElement, addressInput: HTMLInput
     if (data.status === 200 && data.results) {
       const result = data.results[0];
       addressInput.value = result.address1 + result.address2 + result.address3;
+      // 住所が自動入力されたら連動チェックを発火
+      addressInput.dispatchEvent(new Event('input'));
     } else {
       alert('住所が見つかりませんでした。');
     }
@@ -168,14 +262,20 @@ emgSameAsEmp.addEventListener('change', (e) => {
   const isChecked = (e.target as HTMLInputElement).checked;
   if (isChecked) {
     emgAddressGroup.style.display = 'none';
-    emgZip.removeAttribute('required');
-    emgAddress.removeAttribute('required');
+    setFieldRequired(emgZip, false);
+    setFieldRequired(emgAddress, false);
   } else {
     emgAddressGroup.style.display = 'block';
-    emgZip.setAttribute('required', 'true');
-    emgAddress.setAttribute('required', 'true');
+    if (formTypeInput.value === 'new') {
+      setFieldRequired(emgZip, true);
+      setFieldRequired(emgAddress, true);
+    } else {
+      // 変更モードの場合、連動ロジックに任せる
+      checkEmgLink();
+    }
   }
 });
+
 
 // --- モーダル (親等早見表) ---
 btnShowFamilyTree.addEventListener('click', () => {
@@ -205,7 +305,7 @@ function addFamilyField() {
     </div>
     <div class="form-row">
       <div class="form-group flex-1">
-        <label>続き柄（関係） <span class="required">必須</span></label>
+        <label>続き柄（関係） <span class="req-badge required">必須</span></label>
         <select name="famRelation[]" required>
           <option value="">（えらんでください）</option>
           <option value="配偶者">配偶者</option>
@@ -225,7 +325,7 @@ function addFamilyField() {
     <!-- 生年月日 or 概算年齢 -->
     <div class="form-row" style="align-items: flex-start;">
       <div class="form-group flex-1" id="birthDateGroup-${familyCount}">
-        <label>生年月日 <span class="required">必須</span></label>
+        <label>生年月日 <span class="req-badge required">必須</span></label>
         <div class="date-picker-group">
           <select class="fam-year" required></select> <span class="date-label">年</span>
           <select class="fam-month" required></select> <span class="date-label">月</span>
@@ -235,7 +335,7 @@ function addFamilyField() {
       </div>
       
       <div class="form-group flex-1" id="approxAgeGroup-${familyCount}" style="display:none;">
-        <label>だいたいの年齢 <span class="required">必須</span></label>
+        <label>だいたいの年齢 <span class="req-badge required">必須</span></label>
         <input type="number" name="famApproxAge[]" class="fam-approx-age" min="0" max="150" placeholder="例: 65" />
       </div>
     </div>
@@ -249,7 +349,7 @@ function addFamilyField() {
     </div>
 
     <div class="form-group mb-0">
-      <label>同居の有無 <span class="required">必須</span></label>
+      <label>同居の有無 <span class="req-badge required">必須</span></label>
       <div class="radio-group" style="margin-top: 0.5rem;">
         <label class="radio-label">
           <input type="radio" name="famLivingTogether-${familyCount}" value="はい" required> はい
@@ -263,17 +363,19 @@ function addFamilyField() {
   
   familyContainer.appendChild(div);
 
-  // 家族用のセレクトボックスを初期化
   const ySel = div.querySelector('.fam-year') as HTMLSelectElement;
   const mSel = div.querySelector('.fam-month') as HTMLSelectElement;
   const dSel = div.querySelector('.fam-day') as HTMLSelectElement;
   const famAgeDisplay = div.querySelector('.fam-age-display') as HTMLDivElement;
-  initDatePicker(ySel, mSel, dSel, 1988);
+  
+  initDatePicker(ySel, mSel, dSel, null); // ここも空をデフォルトにする
   
   function updateFamAge() {
     const age = calculateAge(ySel.value, mSel.value, dSel.value);
     if (age !== null) {
       famAgeDisplay.textContent = `（現在 ${age}歳）`;
+    } else {
+      famAgeDisplay.textContent = '';
     }
   }
   ySel.addEventListener('change', updateFamAge);
@@ -342,24 +444,27 @@ registrationForm.addEventListener('submit', async (e: Event) => {
   try {
     const formData = new FormData(registrationForm);
     
-    // 従業員の誕生日を結合 (YYYY-MM-DD)
-    const empBirthDateStr = `${formData.get('empYear')}-${formData.get('empMonth')}-${formData.get('empDay')}`;
+    // 従業員の誕生日を結合 (空なら空)
+    const empY = formData.get('empYear');
+    const empM = formData.get('empMonth');
+    const empD = formData.get('empDay');
+    const empBirthDateStr = (empY && empM && empD) ? `${empY}-${empM}-${empD}` : '';
 
     // 従業員情報
     const employee = {
       name: formData.get('empName'),
       birthDate: empBirthDateStr,
-      zip: formData.get('empZip'),
-      address: formData.get('empAddress')
+      zip: formData.get('empZip') || '',
+      address: formData.get('empAddress') || ''
     };
 
     // 緊急連絡先
     const emergencyInfo = {
-      name: formData.get('emgName'),
-      relation: formData.get('emgRelation'),
-      phone: formData.get('emgPhone'),
-      zip: emgSameAsEmp.checked ? formData.get('empZip') : formData.get('emgZip'),
-      address: emgSameAsEmp.checked ? formData.get('empAddress') : formData.get('emgAddress')
+      name: formData.get('emgName') || '',
+      relation: formData.get('emgRelation') || '',
+      phone: formData.get('emgPhone') || '',
+      zip: emgSameAsEmp.checked ? (formData.get('empZip') || '') : (formData.get('emgZip') || ''),
+      address: emgSameAsEmp.checked ? (formData.get('empAddress') || '') : (formData.get('emgAddress') || '')
     };
     
     // 家族情報
@@ -383,11 +488,10 @@ registrationForm.addEventListener('submit', async (e: Event) => {
           isLivingTogether: radioChecked.value
         };
 
-        // 生年月日か年齢か
         if (checkUnknown && checkUnknown.checked) {
-          famData.approxAge = ageInput.value; // 概算年齢
+          famData.approxAge = ageInput.value;
         } else {
-          famData.birthDate = `${ySel.value}-${mSel.value}-${dSel.value}`;  // 結合した生年月日
+          famData.birthDate = (ySel.value && mSel.value && dSel.value) ? `${ySel.value}-${mSel.value}-${dSel.value}` : '';
         }
         
         families.push(famData);
@@ -401,13 +505,11 @@ registrationForm.addEventListener('submit', async (e: Event) => {
       families
     };
 
-    // 送信
     const response = await fetch(GAS_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain;charset=utf-8'
       },
-      // GASのCORSを回避するためのおまじない
       body: JSON.stringify(payload)
     });
 

@@ -207,14 +207,20 @@ label {
   color: #4B5563;
 }
 
-.required {
-  background-color: #FECDD3;
-  color: #BE123C;
+.req-badge {
   font-size: 0.7rem;
   padding: 0.2rem 0.5rem;
   border-radius: 12px;
   vertical-align: middle;
   margin-left: 4px;
+}
+.required {
+  background-color: #FECDD3;
+  color: #BE123C;
+}
+.optional {
+  background-color: #E5E7EB;
+  color: #4B5563;
 }
 
 input[type="text"], input[type="email"], input[type="number"], input[type="date"], input[type="tel"], select {

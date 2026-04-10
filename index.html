@@ -42,12 +42,12 @@
               <span class="icon">👤</span> あなたについて
             </h2>
             <div class="form-group">
-              <label for="empName">お名前 <span class="required">必須</span></label>
+              <label for="empName">お名前 <span class="req-badge required">必須</span></label>
               <input type="text" id="empName" name="empName" placeholder="（例）山田 太郎" required />
             </div>
             
             <div class="form-group">
-              <label>生年月日 <span class="required">必須</span></label>
+              <label id="labelEmpBirth">生年月日 <span class="req-badge required">必須</span></label>
               <div class="date-picker-group">
                 <select id="empYear" name="empYear" required></select> <span class="date-label">年</span>
                 <select id="empMonth" name="empMonth" required></select> <span class="date-label">月</span>
@@ -58,7 +58,7 @@
             
             <div class="form-row">
               <div class="form-group flex-1">
-                <label for="empZip">郵便番号 <span class="required">必須</span></label>
+                <label for="empZip">郵便番号 <span class="req-badge required">必須</span></label>
                 <div class="input-with-button">
                   <input type="text" id="empZip" name="empZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
                   <button type="button" id="empZipSearch" class="search-btn">住所をさがす</button>
@@ -67,7 +67,7 @@
             </div>
 
             <div class="form-group">
-              <label for="empAddress">ご住所 <span class="required">必須</span></label>
+              <label for="empAddress">ご住所 <span class="req-badge required">必須</span></label>
               <input type="text" id="empAddress" name="empAddress" placeholder="（例）東京都千代田区千代田1-1" required />
             </div>
           </section>
@@ -81,17 +81,17 @@
 
             <div class="form-row">
               <div class="form-group flex-1">
-                <label for="emgName">お名前 <span class="required">必須</span></label>
+                <label for="emgName">お名前 <span class="req-badge required">必須</span></label>
                 <input type="text" id="emgName" name="emgName" placeholder="（例）山田 花子" required />
               </div>
               <div class="form-group flex-1">
-                <label for="emgRelation">続き柄（関係） <span class="required">必須</span></label>
+                <label for="emgRelation">続き柄（関係） <span class="req-badge required">必須</span></label>
                 <input type="text" id="emgRelation" name="emgRelation" placeholder="（例）妻、父 など" required />
               </div>
             </div>
 
             <div class="form-group">
-              <label for="emgPhone">お電話番号 <span class="required">必須</span></label>
+              <label for="emgPhone">お電話番号 <span class="req-badge required">必須</span></label>
               <input type="tel" id="emgPhone" name="emgPhone" placeholder="090-0000-0000" required />
             </div>
 
@@ -105,7 +105,7 @@
             <div id="emgAddressGroup">
               <div class="form-row">
                 <div class="form-group flex-1">
-                  <label for="emgZip">郵便番号 <span class="required">必須</span></label>
+                  <label for="emgZip">郵便番号 <span class="req-badge required">必須</span></label>
                   <div class="input-with-button">
                     <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
                     <button type="button" id="emgZipSearch" class="search-btn">住所をさがす</button>
@@ -114,7 +114,7 @@
               </div>
               
               <div class="form-group">
-                <label for="emgAddress">ご住所 <span class="required">必須</span></label>
+                <label for="emgAddress">ご住所 <span class="req-badge required">必須</span></label>
                 <input type="text" id="emgAddress" name="emgAddress" placeholder="（例）東京都千代田区千代田1-1" required />
               </div>
             </div>
