@@ -26,6 +26,7 @@ const empZipSearch = document.getElementById('empZipSearch') as HTMLButtonElemen
 const empZip = document.getElementById('empZip') as HTMLInputElement;
 const empAddress = document.getElementById('empAddress') as HTMLInputElement;
 
+const emgZipSearch = document.getElementById('emgZipSearch') as HTMLButtonElement;
 const emgName = document.getElementById('emgName') as HTMLInputElement;
 const emgRelation = document.getElementById('emgRelation') as HTMLInputElement;
 const emgPhone = document.getElementById('emgPhone') as HTMLInputElement;
