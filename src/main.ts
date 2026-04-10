@@ -207,6 +207,13 @@ btnNew.addEventListener('click', () => {
   formTypeInput.value = 'new';
   formTitle.textContent = '✨ 新規登録フォーム';
   setupFormMode('new');
+  
+  // 新規登録の時は初期値を1988/01/01にする
+  empYear.value = "1988";
+  empMonth.value = "01";
+  empDay.value = "01";
+  updateEmpAge();
+
   topMenu.style.display = 'none';
   registrationForm.style.display = 'block';
   registrationForm.classList.add('slide-in');

@@ -44,7 +44,7 @@ const noSalaryMsg = document.getElementById('noSalaryMsg') as HTMLDivElement;
 // Modal
 const btnOpenSalaryModal = document.getElementById('btnOpenSalaryModal') as HTMLButtonElement;
 const salaryModal = document.getElementById('salaryModal') as HTMLDivElement;
-const closeSalaryModal = document.getElementById('closeSalaryModal') as HTMLButtonElement;
+const btnCancelSalary = document.getElementById('btnCancelSalary') as HTMLButtonElement;
 const salaryForm = document.getElementById('salaryForm') as HTMLFormElement;
 const salaryTargetEmpName = document.getElementById('salaryTargetEmpName') as HTMLParagraphElement;
 const submitSalaryBtn = document.getElementById('submitSalaryBtn') as HTMLButtonElement;
@@ -410,7 +410,7 @@ btnOpenSalaryModal.addEventListener('click', () => {
   salaryModal.style.display = 'flex';
 });
 
-closeSalaryModal.addEventListener('click', () => {
+btnCancelSalary.addEventListener('click', () => {
   salaryModal.style.display = 'none';
 });
 
