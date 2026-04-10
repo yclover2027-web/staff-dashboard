@@ -40,6 +40,18 @@ const closeModal = document.getElementById('closeModal') as HTMLSpanElement;
 let familyCount = 0;
 
 // --- 日付ヘルパー関数 ---
+function calculateAge(year: string, month: string, day: string): number | null {
+  if (!year || !month || !day) return null;
+  const birthDate = new Date(Number(year), Number(month) - 1, Number(day));
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 function getJapaneseYear(year: number): string {
   if (year >= 2019) return year === 2019 ? '令和元' : `令和${year - 2018}`;
   if (year >= 1989) return year === 1989 ? '平成元' : `平成${year - 1988}`;
@@ -84,8 +96,20 @@ function initDatePicker(yearSel: HTMLSelectElement, monthSel: HTMLSelectElement,
 const empYear = document.getElementById('empYear') as HTMLSelectElement;
 const empMonth = document.getElementById('empMonth') as HTMLSelectElement;
 const empDay = document.getElementById('empDay') as HTMLSelectElement;
+const empAgeDisplay = document.getElementById('empAgeDisplay') as HTMLSpanElement;
+
 initDatePicker(empYear, empMonth, empDay, 1988);
 
+function updateEmpAge() {
+  const age = calculateAge(empYear.value, empMonth.value, empDay.value);
+  if (age !== null) {
+    empAgeDisplay.textContent = `（現在 ${age}歳）`;
+  }
+}
+empYear.addEventListener('change', updateEmpAge);
+empMonth.addEventListener('change', updateEmpAge);
+empDay.addEventListener('change', updateEmpAge);
+updateEmpAge();
 
 // --- 画面切り替え ---
 btnNew.addEventListener('click', () => {
@@ -206,6 +230,7 @@ function addFamilyField() {
           <select class="fam-year" required></select> <span class="date-label">年</span>
           <select class="fam-month" required></select> <span class="date-label">月</span>
           <select class="fam-day" required></select> <span class="date-label">日</span>
+          <span class="fam-age-display" style="color: #0D9488; font-weight: 700; margin-left: 0.5rem; white-space: nowrap;"></span>
         </div>
       </div>
       
@@ -242,8 +267,20 @@ function addFamilyField() {
   const ySel = div.querySelector('.fam-year') as HTMLSelectElement;
   const mSel = div.querySelector('.fam-month') as HTMLSelectElement;
   const dSel = div.querySelector('.fam-day') as HTMLSelectElement;
+  const famAgeDisplay = div.querySelector('.fam-age-display') as HTMLSpanElement;
   initDatePicker(ySel, mSel, dSel, 1988);
   
+  function updateFamAge() {
+    const age = calculateAge(ySel.value, mSel.value, dSel.value);
+    if (age !== null) {
+      famAgeDisplay.textContent = `（現在 ${age}歳）`;
+    }
+  }
+  ySel.addEventListener('change', updateFamAge);
+  mSel.addEventListener('change', updateFamAge);
+  dSel.addEventListener('change', updateFamAge);
+  updateFamAge();
+
   // 生年月日⇔年齢 入力切り替えのロジック
   const checkUnknown = div.querySelector('.unknown-age-check') as HTMLInputElement;
   const bdGroup = div.querySelector(`#birthDateGroup-${familyCount}`) as HTMLDivElement;
