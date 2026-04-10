@@ -78,30 +78,20 @@ function calculateAge(birthDateStr: string): string {
   return String(age);
 }
 
-// ヘルパー：年齢計算
-function calculateAge(birthDateStr: string): string {
-  if (!birthDateStr) return "不明";
-  if (birthDateStr.includes("不明")) return birthDateStr; // 手入力用
-
-  const birthDate = new Date(birthDateStr);
-  if (isNaN(birthDate.getTime())) return "不明";
-
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  return String(age);
-}
-
+// （重複した calculateAge を削除）
 // ヘルパー：勤続年数計算
 function calculateTenure(joinDateStr: string, leaveDateStr: string): string {
-  if (!joinDateStr) return "";
-  const joinDate = new Date(joinDateStr);
+  if (!joinDateStr || joinDateStr === '-') return "";
+  let jStr = String(joinDateStr);
+  let lStr = String(leaveDateStr);
+  if (jStr.includes('T')) jStr = jStr.split('T')[0];
+  if (lStr.includes('T')) lStr = lStr.split('T')[0];
+  
+  const joinDate = new Date(jStr);
   if (isNaN(joinDate.getTime())) return "";
 
-  const endDate = (leaveDateStr && !isNaN(new Date(leaveDateStr).getTime())) ? new Date(leaveDateStr) : new Date();
+  // 退社日があればそこまで、なければ今日の日付で計算
+  const endDate = (lStr && lStr !== '-' && !isNaN(new Date(lStr).getTime())) ? new Date(lStr) : new Date();
 
   let years = endDate.getFullYear() - joinDate.getFullYear();
   let months = endDate.getMonth() - joinDate.getMonth();
@@ -129,7 +119,9 @@ function calculateTenure(joinDateStr: string, leaveDateStr: string): string {
 // 金額フォーマット
 function formatCurrency(amount: any): string {
   if (!amount) return "-";
-  return Number(amount).toLocaleString() + " 円";
+  const num = Number(String(amount).replace(/,/g, ''));
+  if (isNaN(num)) return String(amount);
+  return num.toLocaleString() + " 円";
 }
 
 // 初期化（ログイン処理）
@@ -316,7 +308,7 @@ function selectEmployee(empId: string) {
     const deleteBtns = salaryList.querySelectorAll('.delete-sal-btn');
     deleteBtns.forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const recordId = (e.target as HTMLButtonElement).getAttribute('data-id');
+        const recordId = (e.currentTarget as HTMLButtonElement).getAttribute('data-id');
         if (!recordId) {
           alert('削除用IDが見つかりません');
           return;
@@ -361,7 +353,10 @@ async function deleteSalaryRecord(recordId: string) {
 
 // 給与追加モーダル
 btnOpenSalaryModal.addEventListener('click', () => {
-  if (!currentSelectedEmpId) return;
+  if (!currentSelectedEmpId) {
+    alert("まずは左側のリストから、追加したい従業員を選んでください！");
+    return;
+  }
   const emp = appData.employees.find((e: any) => e['従業員ID'] === currentSelectedEmpId);
   salaryTargetEmpName.textContent = (emp['お名前'] || '') + " さんの履歴を追加";
   salaryForm.reset();

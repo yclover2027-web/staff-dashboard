@@ -307,7 +307,7 @@ function addFamilyField() {
     <div class="form-row">
       <div class="form-group flex-1">
         <label>続き柄（関係） <span class="req-badge required">必須</span></label>
-        <select name="famRelation[]" required>
+        <select name="famRelation[]" class="fam-relation" required>
           <option value="">（えらんでください）</option>
           <option value="配偶者">配偶者</option>
           <option value="子">子</option>
@@ -450,30 +450,13 @@ registrationForm.addEventListener('submit', async (e: Event) => {
     const empM = formData.get('empMonth');
     const empD = formData.get('empDay');
     const empBirthDateStr = (empY && empM && empD) ? `${empY}-${empM}-${empD}` : '';
-
-    // 従業員情報
-    const employee = {
-      name: formData.get('empName'),
-      birthDate: empBirthDateStr,
-      zip: formData.get('empZip') || '',
-      address: formData.get('empAddress') || ''
-    };
-
-    // 緊急連絡先
-    const emergencyInfo = {
-      name: formData.get('emgName') || '',
-      relation: formData.get('emgRelation') || '',
-      phone: formData.get('emgPhone') || '',
-      zip: emgSameAsEmp.checked ? (formData.get('empZip') || '') : (formData.get('emgZip') || ''),
-      address: emgSameAsEmp.checked ? (formData.get('empAddress') || '') : (formData.get('emgAddress') || '')
-    };
     
     // 家族情報
     const families: any[] = [];
     const familyItems = document.querySelectorAll('.family-item');
     
     familyItems.forEach((item) => {
-      const relationSelect = item.querySelector('select[name="famRelation[]"]') as HTMLSelectElement;
+      const relationSelect = item.querySelector('.fam-relation') as HTMLSelectElement;
       const radioChecked = item.querySelector('input[type="radio"]:checked') as HTMLInputElement;
       
       const checkUnknown = item.querySelector('.unknown-age-check') as HTMLInputElement;
@@ -483,19 +466,26 @@ registrationForm.addEventListener('submit', async (e: Event) => {
       const mSel = item.querySelector('.fam-month') as HTMLSelectElement;
       const dSel = item.querySelector('.fam-day') as HTMLSelectElement;
       
-      if (relationSelect && radioChecked) {
-        const famData: any = {
-          relation: relationSelect.value,
-          living_together: radioChecked.value
-        };
-
-        if (checkUnknown && checkUnknown.checked) {
-          famData.birthdate = "不明(" + ageInput.value + "歳)";
-        } else {
-          famData.birthdate = (ySel.value && mSel.value && dSel.value) ? `${ySel.value}-${mSel.value}-${dSel.value}` : '';
-        }
-        
-        families.push(famData);
+      // エラーで弾かれないよう、取得できたものは何でも送る超安全設計
+      let relationVal = relationSelect ? relationSelect.value : "未入力";
+      let livingTogether = radioChecked ? radioChecked.value : "不明";
+      
+      let birth = "";
+      if (checkUnknown && checkUnknown.checked) {
+        birth = "不明(" + (ageInput ? ageInput.value : "") + "歳)";
+      } else {
+        birth = (ySel && ySel.value && mSel && mSel.value && dSel && dSel.value) 
+                ? `${ySel.value}-${mSel.value}-${dSel.value}` 
+                : '';
+      }
+      
+      // 家族の枠が存在すれば確実にデータとして送る
+      if (relationSelect) {
+        families.push({
+          relation: relationVal,
+          living_together: livingTogether,
+          birthdate: birth
+        });
       }
     });
 
