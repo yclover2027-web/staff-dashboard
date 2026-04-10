@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxJ9CDFzfBzpfq4i6477Rs11kQdzRnxOV_-G_7hx3TNbh3XRLSUDhdVPSBtDTUwpXluiQ/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbymKcGhHmk30LtboYxX8zb7oGTQsF2dFrUJ6gBc2Y4RLmKec4cApQOMs0WkL-9ExZi0-g/exec";
 
 // DOM Elements
 const loginScreen = document.getElementById('loginScreen') as HTMLDivElement;
@@ -158,6 +158,12 @@ function selectEmployee(empId: string) {
   const emp = appData.employees.find((e: any) => e['従業員ID'] === empId);
   if (!emp) return;
 
+  // 基本情報編集用データをセット
+  (document.getElementById('editJoinDate') as HTMLInputElement).value = emp['入社日'] ? formatDateString(emp['入社日']).replace(/\//g, '-') : '';
+  (document.getElementById('editLeaveDate') as HTMLInputElement).value = emp['退社日'] ? formatDateString(emp['退社日']).replace(/\//g, '-') : '';
+  (document.getElementById('editBirthDate') as HTMLInputElement).value = emp['生年月日'] || '';
+  (document.getElementById('editAddress') as HTMLInputElement).value = emp['住所'] || '';
+
   welcomeMessage.style.display = 'none';
   empDetailContainer.style.display = 'block';
 
@@ -210,15 +216,37 @@ function selectEmployee(empId: string) {
       li.className = 'sub-item';
       
       let pdfLinkHtml = '-';
-      if (sal['契約書PDF'] && sal['契約書PDF'].startsWith('http')) {
-        pdfLinkHtml = `<a href="${sal['契約書PDF']}" target="_blank" style="color:#0D9488; font-weight:bold;">📄 PDFを開く</a>`;
+      
+      // キーの揺れに対応して金額を取得する
+      let monthly = sal['月給'] || sal['月給(円)'] || sal['基本給'] || '';
+      let hourly = sal['時給'] || sal['時給(円)'] || '';
+      let yearly = sal['年収'] || sal['年収(円)'] || '';
+      let store = sal['所属店舗'] || sal['店舗'] || '-';
+
+      // まだ見つからない場合のフォールバック（キー名に「月」「時」「年」を含むものを探す）
+      if (!monthly) { const k = Object.keys(sal).find(k => k.includes('月')); if(k) monthly = sal[k]; }
+      if (!hourly) { const k = Object.keys(sal).find(k => k.includes('時')); if(k) hourly = sal[k]; }
+      if (!yearly) { const k = Object.keys(sal).find(k => k.includes('年')); if(k) yearly = sal[k]; }
+
+      // PDFファイルへのリンクの最強フォールバック（どのカラム名でもURLの形をしていればPDFとみなす）
+      let pdfUrl = '';
+      for (const key of Object.keys(sal)) {
+        if (sal[key] && String(sal[key]).startsWith('http')) {
+          pdfUrl = String(sal[key]);
+        }
+      }
+      
+      if (pdfUrl) {
+        pdfLinkHtml = `<a href="${pdfUrl}" target="_blank" style="color:#0D9488; font-weight:bold;">📄 ファイルを開く</a>`;
       }
 
+      const applyDateKey = Object.keys(sal).find(k => k.includes('適用') || k.includes('変更') || k.includes('日')) || '変更・適用日';
+
       li.innerHTML = `
-        <div class="sub-item-title">${formatDateString(sal['変更・適用日'])} 改定</div>
-        <div class="info-row"><span class="info-label">所属店舗</span><span class="info-value">${sal['所属店舗'] || '-'}</span></div>
-        <div class="info-row"><span class="info-label">月給 / 時給</span><span class="info-value">${formatCurrency(sal['月給'])} / ${formatCurrency(sal['時給'])}</span></div>
-        <div class="info-row"><span class="info-label">年収</span><span class="info-value">${formatCurrency(sal['年収'])}</span></div>
+        <div class="sub-item-title">${formatDateString(sal[applyDateKey])} 改定</div>
+        <div class="info-row"><span class="info-label">所属店舗</span><span class="info-value">${store}</span></div>
+        <div class="info-row"><span class="info-label">月給 / 時給</span><span class="info-value">${formatCurrency(monthly)} / ${formatCurrency(hourly)}</span></div>
+        <div class="info-row"><span class="info-label">年収</span><span class="info-value">${formatCurrency(yearly)}</span></div>
         <div class="info-row"><span class="info-label">添付ファイル</span><span class="info-value">${pdfLinkHtml}</span></div>
       `;
       salaryList.appendChild(li);
@@ -246,6 +274,71 @@ closeSalaryModal.addEventListener('click', () => {
   salaryModal.style.display = 'none';
 });
 
+// 基本情報編集モーダルの処理
+const btnOpenEmpEditModal = document.getElementById('btnOpenEmpEditModal') as HTMLButtonElement;
+const empEditModal = document.getElementById('empEditModal') as HTMLDivElement;
+const closeEmpEditModal = document.getElementById('closeEmpEditModal') as HTMLButtonElement;
+const empEditForm = document.getElementById('empEditForm') as HTMLFormElement;
+const editTargetEmpName = document.getElementById('editTargetEmpName') as HTMLParagraphElement;
+
+btnOpenEmpEditModal.addEventListener('click', () => {
+  if (!currentSelectedEmpId) return;
+  const emp = appData.employees.find((e: any) => e['従業員ID'] === currentSelectedEmpId);
+  editTargetEmpName.textContent = (emp['お名前'] || '') + " さんの情報を編集";
+  empEditModal.style.display = 'flex';
+});
+
+closeEmpEditModal.addEventListener('click', () => {
+  empEditModal.style.display = 'none';
+});
+
+empEditForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submitEmpEditBtn') as HTMLButtonElement;
+  submitBtn.disabled = true;
+  submitBtn.textContent = '⏳ 更新中...';
+
+  try {
+    const joinDate = (document.getElementById('editJoinDate') as HTMLInputElement).value;
+    const leaveDate = (document.getElementById('editLeaveDate') as HTMLInputElement).value;
+    const birthDate = (document.getElementById('editBirthDate') as HTMLInputElement).value;
+    const address = (document.getElementById('editAddress') as HTMLInputElement).value;
+
+    const payload = {
+      action: "updateEmployeeAdmin",
+      password: currentPassword,
+      data: {
+        empId: currentSelectedEmpId,
+        joinDate,
+        leaveDate,
+        birthDate,
+        address
+      }
+    };
+
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+
+    if (result.status === "success") {
+      alert("従業員情報を更新しました！");
+      empEditModal.style.display = 'none';
+      await loadDashboardData(); // データ再取得して再描画
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (err: any) {
+    alert("エラーが発生しました: " + err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = '💾 更新する';
+  }
+});
+
 // ファイルをBase64に変換する関数
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -255,6 +348,22 @@ function fileToBase64(file: File): Promise<string> {
     reader.onerror = error => reject(error);
   });
 }
+
+// 金額のカンマ自動付与ロジック
+const commaInputs = document.querySelectorAll('.comma-input') as NodeListOf<HTMLInputElement>;
+commaInputs.forEach(input => {
+  input.addEventListener('input', (e) => {
+    let val = (e.target as HTMLInputElement).value;
+    // カンマや数字以外の文字を取り除く
+    val = val.replace(/[^0-9]/g, '');
+    if (val) {
+      // 数値化して3桁カンマ区切りに
+      (e.target as HTMLInputElement).value = Number(val).toLocaleString();
+    } else {
+      (e.target as HTMLInputElement).value = '';
+    }
+  });
+});
 
 // 給与情報の送信
 salaryForm.addEventListener('submit', async (e) => {
@@ -266,9 +375,10 @@ salaryForm.addEventListener('submit', async (e) => {
   try {
     const applyDate = (document.getElementById('salApplyDate') as HTMLInputElement).value;
     const storeName = (document.getElementById('salStoreName') as HTMLInputElement).value;
-    const monthlySalary = (document.getElementById('salMonthly') as HTMLInputElement).value;
-    const hourlySalary = (document.getElementById('salHourly') as HTMLInputElement).value;
-    const yearlySalary = (document.getElementById('salYearly') as HTMLInputElement).value;
+    // カンマを取り除いて数値のみにする
+    const monthlySalary = (document.getElementById('salMonthly') as HTMLInputElement).value.replace(/,/g, '');
+    const hourlySalary = (document.getElementById('salHourly') as HTMLInputElement).value.replace(/,/g, '');
+    const yearlySalary = (document.getElementById('salYearly') as HTMLInputElement).value.replace(/,/g, '');
     
     let pdfBase64 = "";
     let pdfName = "";
