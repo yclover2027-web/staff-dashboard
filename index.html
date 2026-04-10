@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>クローバースタッフ ご登録フォーム</title>    
-    <!-- 丸みのある親しみやすいフォント (Zen Maru Gothic) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
@@ -18,7 +17,6 @@
       </header>
 
       <main class="app-main">
-        <!-- トップメニュー画面 -->
         <div id="topMenu" class="glass-form text-center">
           <h2 class="soft-title">なにをしますか？</h2>
           <p class="section-desc mb-2">ご希望のボタンをえらんでくださいね。</p>
@@ -32,7 +30,6 @@
           </div>
         </div>
 
-        <!-- 登録／変更フォーム -->
         <form id="registrationForm" class="glass-form" style="display: none;">
           <button type="button" id="btnBack" class="back-btn">← 最初の画面にもどる</button>
           
@@ -50,15 +47,19 @@
             </div>
             
             <div class="form-group">
-              <label for="empBirthDate">生年月日 <span class="required">必須</span></label>
-              <input type="date" id="empBirthDate" name="empBirthDate" required />
+              <label>生年月日 <span class="required">必須</span></label>
+              <div class="date-picker-group">
+                <select id="empYear" name="empYear" required></select> <span class="date-label">年</span>
+                <select id="empMonth" name="empMonth" required></select> <span class="date-label">月</span>
+                <select id="empDay" name="empDay" required></select> <span class="date-label">日</span>
+              </div>
             </div>
             
             <div class="form-row">
               <div class="form-group flex-1">
                 <label for="empZip">郵便番号 <span class="required">必須</span></label>
                 <div class="input-with-button">
-                  <input type="text" id="empZip" name="empZip" placeholder="1000001（ハイフンなし）" pattern="\\d{7}" required />
+                  <input type="text" id="empZip" name="empZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
                   <button type="button" id="empZipSearch" class="search-btn">住所をさがす</button>
                 </div>
               </div>
@@ -97,7 +98,7 @@
               <div class="form-group flex-1">
                 <label for="emgZip">郵便番号 <span class="required">必須</span></label>
                 <div class="input-with-button">
-                  <input type="text" id="emgZip" name="emgZip" placeholder="1000001" pattern="\\d{7}" required />
+                  <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
                   <button type="button" id="emgZipSearch" class="search-btn">住所をさがす</button>
                 </div>
               </div>
