@@ -1,7 +1,7 @@
 import './style.css'
 
 // GASのURL
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxSSI2QyX2bfr_Yfa1Fo0IK6UliQGhw9_iu8gsMvmHc8ZKHAZAqNipS0PoU6jNOKJKjRQ/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxJ9CDFzfBzpfq4i6477Rs11kQdzRnxOV_-G_7hx3TNbh3XRLSUDhdVPSBtDTUwpXluiQ/exec";
 
 // --- DOM Elements ---
 const topMenu = document.getElementById('topMenu') as HTMLDivElement;
@@ -486,24 +486,35 @@ registrationForm.addEventListener('submit', async (e: Event) => {
       if (relationSelect && radioChecked) {
         const famData: any = {
           relation: relationSelect.value,
-          isLivingTogether: radioChecked.value
+          living_together: radioChecked.value
         };
 
         if (checkUnknown && checkUnknown.checked) {
-          famData.approxAge = ageInput.value;
+          famData.birthdate = "不明(" + ageInput.value + "歳)";
         } else {
-          famData.birthDate = (ySel.value && mSel.value && dSel.value) ? `${ySel.value}-${mSel.value}-${dSel.value}` : '';
+          famData.birthdate = (ySel.value && mSel.value && dSel.value) ? `${ySel.value}-${mSel.value}-${dSel.value}` : '';
         }
         
         families.push(famData);
       }
     });
 
+    const empZipStr = formData.get('empZip') ? `〒${formData.get('empZip')} ` : '';
+    const emgZipStr = emgSameAsEmp.checked ? empZipStr : (formData.get('emgZip') ? `〒${formData.get('emgZip')} ` : '');
+
     const payload = {
-      formType: formData.get('formType'), // 'new' or 'update'
-      employee,
-      emergencyInfo,
-      families
+      action: "registerEmployee",
+      data: {
+        formType: formData.get('formType'),
+        name: formData.get('empName'),
+        birthdate: empBirthDateStr,
+        address: empZipStr + (formData.get('empAddress') || ''),
+        emergency_name: formData.get('emgName') || '',
+        emergency_relation: formData.get('emgRelation') || '',
+        emergency_phone: formData.get('emgPhone') || '',
+        emergency_address: emgZipStr + (emgSameAsEmp.checked ? (formData.get('empAddress') || '') : (formData.get('emgAddress') || '')),
+        families: families
+      }
     };
 
     const response = await fetch(GAS_URL, {

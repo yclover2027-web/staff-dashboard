@@ -1,0 +1,317 @@
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxJ9CDFzfBzpfq4i6477Rs11kQdzRnxOV_-G_7hx3TNbh3XRLSUDhdVPSBtDTUwpXluiQ/exec";
+
+// DOM Elements
+const loginScreen = document.getElementById('loginScreen') as HTMLDivElement;
+const loginForm = document.getElementById('loginForm') as HTMLFormElement;
+const adminPasswordInput = document.getElementById('adminPassword') as HTMLInputElement;
+const loginError = document.getElementById('loginError') as HTMLDivElement;
+
+const dashboard = document.getElementById('dashboard') as HTMLDivElement;
+const empList = document.getElementById('empList') as HTMLUListElement;
+const btnRefresh = document.getElementById('btnRefresh') as HTMLButtonElement;
+
+const globalLoader = document.getElementById('globalLoader') as HTMLDivElement;
+
+// Detail Area
+const empDetailContainer = document.getElementById('empDetailContainer') as HTMLDivElement;
+const welcomeMessage = document.getElementById('welcomeMessage') as HTMLDivElement;
+const detailName = document.getElementById('detailName') as HTMLHeadingElement;
+const detailEmpId = document.getElementById('detailEmpId') as HTMLSpanElement;
+const detailBirth = document.getElementById('detailBirth') as HTMLSpanElement;
+const detailJoinDate = document.getElementById('detailJoinDate') as HTMLSpanElement;
+const detailLeaveDate = document.getElementById('detailLeaveDate') as HTMLSpanElement;
+const detailAddress = document.getElementById('detailAddress') as HTMLSpanElement;
+const detailEmgName = document.getElementById('detailEmgName') as HTMLSpanElement;
+const detailEmgPhone = document.getElementById('detailEmgPhone') as HTMLSpanElement;
+const detailEmgAddress = document.getElementById('detailEmgAddress') as HTMLSpanElement;
+
+// Sub Lists
+const familyList = document.getElementById('familyList') as HTMLUListElement;
+const noFamilyMsg = document.getElementById('noFamilyMsg') as HTMLDivElement;
+const salaryList = document.getElementById('salaryList') as HTMLUListElement;
+const noSalaryMsg = document.getElementById('noSalaryMsg') as HTMLDivElement;
+
+// Modal
+const btnOpenSalaryModal = document.getElementById('btnOpenSalaryModal') as HTMLButtonElement;
+const salaryModal = document.getElementById('salaryModal') as HTMLDivElement;
+const closeSalaryModal = document.getElementById('closeSalaryModal') as HTMLButtonElement;
+const salaryForm = document.getElementById('salaryForm') as HTMLFormElement;
+const salaryTargetEmpName = document.getElementById('salaryTargetEmpName') as HTMLParagraphElement;
+const submitSalaryBtn = document.getElementById('submitSalaryBtn') as HTMLButtonElement;
+
+// State
+let appData: any = { employees: [], families: [], salaries: [] };
+let currentPassword = "";
+let currentSelectedEmpId = "";
+
+// ヘルパー：日付フォーマット（T15:00:00.000Z などのUTCズレを日本時間で綺麗に表示する）
+function formatDateString(dateVal: any): string {
+  if (!dateVal) return '-';
+  const str = String(dateVal);
+  // 日付時刻のような文字列なら変換
+  if (str.includes('T') && str.endsWith('Z')) {
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}/${m}/${day}`;
+    }
+  }
+  return str.split('T')[0].replace(/-/g, '/');
+}
+
+// ヘルパー：年齢計算
+function calculateAge(birthDateStr: string): string {
+  if (!birthDateStr) return "不明";
+  if (birthDateStr.includes("不明")) return birthDateStr; // 手入力用
+
+  const birthDate = new Date(birthDateStr);
+  if (isNaN(birthDate.getTime())) return "不明";
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return String(age);
+}
+
+// 金額フォーマット
+function formatCurrency(amount: any): string {
+  if (!amount) return "-";
+  return Number(amount).toLocaleString() + " 円";
+}
+
+// 初期化（ログイン処理）
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  currentPassword = adminPasswordInput.value;
+  await loadDashboardData();
+});
+
+btnRefresh.addEventListener('click', async () => {
+  await loadDashboardData();
+});
+
+// データ取得と描画
+async function loadDashboardData() {
+  loginError.style.display = 'none';
+  globalLoader.style.display = 'flex';
+
+  try {
+    const payload = { action: "getDashboardData", password: currentPassword };
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+
+    if (result.status === "success") {
+      appData = result.data;
+      // ログイン画面を隠してダッシュボードを表示
+      loginScreen.style.display = 'none';
+      dashboard.style.display = 'flex';
+      
+      renderEmployeeList();
+      
+      // すでに誰かを選択中なら、詳細を更新する
+      if (currentSelectedEmpId) {
+        selectEmployee(currentSelectedEmpId);
+      }
+    } else {
+      loginError.style.display = 'block';
+      if (result.message.includes("Password")) {
+        loginError.textContent = "パスワードが間違っています。";
+      } else {
+        loginError.textContent = "エラー: " + result.message;
+      }
+      currentPassword = "";
+    }
+  } catch (err) {
+    loginError.style.display = 'block';
+    loginError.textContent = "通信に失敗しました。";
+  } finally {
+    globalLoader.style.display = 'none';
+  }
+}
+
+// 従業員リストの描画
+function renderEmployeeList() {
+  empList.innerHTML = '';
+  appData.employees.forEach((emp: any) => {
+    const li = document.createElement('li');
+    li.className = `emp-item ${emp['従業員ID'] === currentSelectedEmpId ? 'active' : ''}`;
+    li.textContent = emp['お名前'] || '名前なし';
+    li.addEventListener('click', () => selectEmployee(emp['従業員ID']));
+    empList.appendChild(li);
+  });
+}
+
+// 従業員詳細の表示
+function selectEmployee(empId: string) {
+  currentSelectedEmpId = empId;
+  renderEmployeeList(); // アクティブ表示更新
+
+  const emp = appData.employees.find((e: any) => e['従業員ID'] === empId);
+  if (!emp) return;
+
+  welcomeMessage.style.display = 'none';
+  empDetailContainer.style.display = 'block';
+
+  // 基本情報
+  detailName.textContent = emp['お名前'] || '-';
+  detailEmpId.textContent = "ID: " + emp['従業員ID'];
+  const age = calculateAge(emp['生年月日']);
+  const formattedBirth = formatDateString(emp['生年月日']);
+  detailBirth.textContent = `${formattedBirth} (${age}歳)`;
+  detailJoinDate.textContent = formatDateString(emp['入社日']);
+  detailLeaveDate.textContent = formatDateString(emp['退社日']);
+  detailAddress.textContent = emp['住所'] || '-';
+
+  // 緊急連絡先
+  detailEmgName.textContent = `${emp['緊急連絡先_名前'] || '-'} (${emp['緊急連絡先_続柄'] || '-'})`;
+  detailEmgPhone.textContent = emp['緊急連絡先_電話番号'] || '-';
+  detailEmgAddress.textContent = emp['緊急連絡先_住所'] || '-';
+
+  // 家族リストの抽出と描画
+  const myFamilies = appData.families.filter((f: any) => f['従業員ID'] === empId);
+  familyList.innerHTML = '';
+  if (myFamilies.length > 0) {
+    noFamilyMsg.style.display = 'none';
+    myFamilies.forEach((fam: any) => {
+      const li = document.createElement('li');
+      li.className = 'sub-item';
+      const famAge = calculateAge(fam['生年月日']);
+      const famFormattedBirth = formatDateString(fam['生年月日']);
+      li.innerHTML = `
+        <div class="sub-item-title">${fam['続柄']}</div>
+        <div class="info-row"><span class="info-label">生年月日(年齢)</span><span class="info-value">${famFormattedBirth} (${famAge}歳)</span></div>
+        <div class="info-row"><span class="info-label">同居</span><span class="info-value">${fam['同居の有無']}</span></div>
+      `;
+      familyList.appendChild(li);
+    });
+  } else {
+    noFamilyMsg.style.display = 'block';
+  }
+
+  // 給与履歴の抽出と描画
+  const mySalaries = appData.salaries.filter((s: any) => s['従業員ID'] === empId);
+  // 日付の降順（新しい順）にソート
+  mySalaries.sort((a: any, b: any) => new Date(b['変更・適用日']).getTime() - new Date(a['変更・適用日']).getTime());
+  
+  salaryList.innerHTML = '';
+  if (mySalaries.length > 0) {
+    noSalaryMsg.style.display = 'none';
+    mySalaries.forEach((sal: any) => {
+      const li = document.createElement('li');
+      li.className = 'sub-item';
+      
+      let pdfLinkHtml = '-';
+      if (sal['契約書PDF'] && sal['契約書PDF'].startsWith('http')) {
+        pdfLinkHtml = `<a href="${sal['契約書PDF']}" target="_blank" style="color:#0D9488; font-weight:bold;">📄 PDFを開く</a>`;
+      }
+
+      li.innerHTML = `
+        <div class="sub-item-title">${formatDateString(sal['変更・適用日'])} 改定</div>
+        <div class="info-row"><span class="info-label">所属店舗</span><span class="info-value">${sal['所属店舗'] || '-'}</span></div>
+        <div class="info-row"><span class="info-label">月給 / 時給</span><span class="info-value">${formatCurrency(sal['月給'])} / ${formatCurrency(sal['時給'])}</span></div>
+        <div class="info-row"><span class="info-label">年収</span><span class="info-value">${formatCurrency(sal['年収'])}</span></div>
+        <div class="info-row"><span class="info-label">添付ファイル</span><span class="info-value">${pdfLinkHtml}</span></div>
+      `;
+      salaryList.appendChild(li);
+    });
+  } else {
+    noSalaryMsg.style.display = 'block';
+  }
+}
+
+// 給与追加モーダル
+btnOpenSalaryModal.addEventListener('click', () => {
+  if (!currentSelectedEmpId) return;
+  const emp = appData.employees.find((e: any) => e['従業員ID'] === currentSelectedEmpId);
+  salaryTargetEmpName.textContent = (emp['お名前'] || '') + " さんの履歴を追加";
+  salaryForm.reset();
+  
+  // 今日の日付をセット
+  const today = new Date().toISOString().split('T')[0];
+  (document.getElementById('salApplyDate') as HTMLInputElement).value = today;
+  
+  salaryModal.style.display = 'flex';
+});
+
+closeSalaryModal.addEventListener('click', () => {
+  salaryModal.style.display = 'none';
+});
+
+// ファイルをBase64に変換する関数
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+  });
+}
+
+// 給与情報の送信
+salaryForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  submitSalaryBtn.disabled = true;
+  submitSalaryBtn.textContent = '⏳ 保存中...';
+
+  try {
+    const applyDate = (document.getElementById('salApplyDate') as HTMLInputElement).value;
+    const storeName = (document.getElementById('salStoreName') as HTMLInputElement).value;
+    const monthlySalary = (document.getElementById('salMonthly') as HTMLInputElement).value;
+    const hourlySalary = (document.getElementById('salHourly') as HTMLInputElement).value;
+    const yearlySalary = (document.getElementById('salYearly') as HTMLInputElement).value;
+    
+    let pdfBase64 = "";
+    let pdfName = "";
+    const fileInput = document.getElementById('salPdfFile') as HTMLInputElement;
+    if (fileInput.files && fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      pdfBase64 = await fileToBase64(file);
+      pdfName = currentSelectedEmpId + "_" + applyDate + "_" + file.name;
+    }
+
+    const payload = {
+      action: "addSalaryRecord",
+      password: currentPassword,
+      data: {
+        empId: currentSelectedEmpId,
+        applyDate,
+        storeName,
+        monthlySalary,
+        hourlySalary,
+        yearlySalary,
+        pdfBase64,
+        pdfName
+      }
+    };
+
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+
+    if (result.status === "success") {
+      alert("保存しました！ダッシュボードを更新します。");
+      salaryModal.style.display = 'none';
+      await loadDashboardData(); // データを再取得して表示を更新
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (err: any) {
+    alert("エラーが発生しました: " + err.message);
+  } finally {
+    submitSalaryBtn.disabled = false;
+    submitSalaryBtn.textContent = '💾 保存して蓄積する';
+  }
+});
