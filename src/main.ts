@@ -180,6 +180,18 @@ function checkEmgLink() {
 [empZip, empAddress].forEach(el => el.addEventListener('input', checkEmpAddressLink));
 [emgName, emgRelation, emgPhone, emgZip, emgAddress].forEach(el => el.addEventListener('input', checkEmgLink));
 
+// 郵便番号のハイフンを自動削除する処理
+[empZip, emgZip].forEach(el => {
+  el.addEventListener('input', (e) => {
+    const input = e.target as HTMLInputElement;
+    const originalValue = input.value;
+    const newValue = originalValue.replace(/-/g, '');
+    if (originalValue !== newValue) {
+      input.value = newValue;
+    }
+  });
+});
+
 // フォームのリセットと必須項目の設定
 function setupFormMode(mode: 'new' | 'update') {
   registrationForm.reset();
@@ -526,9 +538,52 @@ registrationForm.addEventListener('submit', async (e: Event) => {
     const result = await response.json();
 
     if (result.status === 'success') {
+      // --- 送信内容を確認画面へ表示する ---
+      const d = payload.data;
+
+      // フォーム区分の表示
+      const confirmFormType = document.getElementById('confirmFormType');
+      if (confirmFormType) {
+        confirmFormType.textContent = d.formType === 'update' ? '🔄 情報変更届' : '✨ 新規登録';
+      }
+
+      // 本人情報
+      const setConfirm = (id: string, val: string) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || '（未入力）';
+      };
+      setConfirm('confirmName', String(d.name || ''));
+      setConfirm('confirmNameKana', String(d.nameKana || ''));
+      setConfirm('confirmBirth', String(d.birthdate || ''));
+      setConfirm('confirmAddress', String(d.address || ''));
+
+      // 緊急連絡先
+      setConfirm('confirmEmgName', String(d.emergency_name || ''));
+      setConfirm('confirmEmgRelation', String(d.emergency_relation || ''));
+      setConfirm('confirmEmgPhone', String(d.emergency_phone || ''));
+      setConfirm('confirmEmgAddress', String(d.emergency_address || ''));
+
+      // 家族情報
+      const familySection = document.getElementById('confirmFamilySection');
+      const familyList = document.getElementById('confirmFamilyList');
+      if (familySection && familyList && d.families && d.families.length > 0) {
+        familySection.style.display = 'block';
+        familyList.innerHTML = '';
+        d.families.forEach((fam: any, i: number) => {
+          const div = document.createElement('div');
+          div.style.cssText = 'background:#fff; border-radius:8px; padding:0.6rem 0.8rem; margin-bottom:0.5rem; border:1px solid #CCFBF1;';
+          div.innerHTML = `
+            <strong style="color:#0D9488;">ご家族 ${i + 1}（${fam.relation || '未選択'}）</strong><br>
+            <span style="font-size:0.88rem; color:#374151;">生年月日：${fam.birthdate || '未入力'} ／ 同居：${fam.living_together || '未回答'}</span>
+          `;
+          familyList.appendChild(div);
+        });
+      }
+
+      // 確認画面を表示
       window.scrollTo(0, 0);
       registrationForm.style.display = 'none';
-      successMessage.style.display = 'flex';
+      successMessage.style.display = 'block';
     } else {
       throw new Error(result.message || 'Server returned error');
     }

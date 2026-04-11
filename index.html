@@ -43,12 +43,12 @@
             </h2>
             <div class="form-group">
               <label for="empName">お名前 <span class="req-badge required">必須</span></label>
-              <input type="text" id="empName" name="empName" placeholder="（例）山田 太郎" required />
+              <input type="text" id="empName" name="empName" placeholder="（例）山田 太郎" autocomplete="name" required />
             </div>
             
             <div class="form-group">
               <label for="empNameKana">フリガナ <span class="req-badge required">必須</span></label>
-              <input type="text" id="empNameKana" name="empNameKana" placeholder="（例）ヤマダ タロウ" pattern="^[ァ-ヴー\s　]+$" title="全角カタカナで入力してください" required />
+              <input type="text" id="empNameKana" name="empNameKana" placeholder="（例）ヤマダ タロウ" pattern="^[ァ-ヴー\s　]+$" title="全角カタカナで入力してください" autocomplete="off" required />
             </div>
             
             <div class="form-group">
@@ -65,7 +65,7 @@
               <div class="form-group flex-1">
                 <label for="empZip">郵便番号 <span class="req-badge required">必須</span></label>
                 <div class="input-with-button">
-                  <input type="text" id="empZip" name="empZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
+                  <input type="text" id="empZip" name="empZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" autocomplete="postal-code" required />
                   <button type="button" id="empZipSearch" class="search-btn">住所をさがす</button>
                 </div>
               </div>
@@ -73,7 +73,7 @@
 
             <div class="form-group">
               <label for="empAddress">ご住所 <span class="req-badge required">必須</span></label>
-              <input type="text" id="empAddress" name="empAddress" placeholder="（例）東京都千代田区千代田1-1" required />
+              <input type="text" id="empAddress" name="empAddress" placeholder="（例）東京都千代田区千代田1-1" autocomplete="street-address" required />
             </div>
           </section>
 
@@ -97,7 +97,7 @@
 
             <div class="form-group">
               <label for="emgPhone">お電話番号 <span class="req-badge required">必須</span></label>
-              <input type="tel" id="emgPhone" name="emgPhone" placeholder="090-0000-0000" required />
+              <input type="tel" id="emgPhone" name="emgPhone" placeholder="090-0000-0000" autocomplete="tel" required />
             </div>
 
             <div class="form-group mb-2 mt-2">
@@ -112,7 +112,7 @@
                 <div class="form-group flex-1">
                   <label for="emgZip">郵便番号 <span class="req-badge required">必須</span></label>
                   <div class="input-with-button">
-                    <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" required />
+                    <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" autocomplete="postal-code" required />
                     <button type="button" id="emgZipSearch" class="search-btn">住所をさがす</button>
                   </div>
                 </div>
@@ -120,7 +120,7 @@
               
               <div class="form-group">
                 <label for="emgAddress">ご住所 <span class="req-badge required">必須</span></label>
-                <input type="text" id="emgAddress" name="emgAddress" placeholder="（例）東京都千代田区千代田1-1" required />
+                <input type="text" id="emgAddress" name="emgAddress" placeholder="（例）東京都千代田区千代田1-1" autocomplete="street-address" required />
               </div>
             </div>
           </section>
@@ -157,10 +157,54 @@
           </div>
         </form>
 
-        <div id="successMessage" class="success-message" style="display: none;">
+        <div id="successMessage" class="glass-form" style="display: none;">
           <div class="success-icon">✨</div>
-          <h3>受付が完了しました！</h3>
-          <p>情報のご提供ありがとうございました😊</p>
+          <h3 style="color: var(--primary); font-size: 1.4rem; margin-bottom: 0.3rem;">受付が完了しました！</h3>
+          <p style="color: #6B7280; margin-bottom: 1.5rem;">情報のご提供ありがとうございました😊<br>
+          <strong style="color: #0D9488;">📸 下記の内容をスクリーンショットで保存しておくと安心です！</strong></p>
+
+          <!-- 送信内容の確認リスト -->
+          <div id="confirmSummary" style="text-align: left; background: #F0FDFA; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem; border: 1.5px solid #CCFBF1;">
+            
+            <h4 style="color: #0D9488; margin-bottom: 1rem; border-bottom: 2px solid #CCFBF1; padding-bottom: 0.5rem;">
+              📋 送信した内容の確認
+            </h4>
+
+            <!-- フォーム区分 -->
+            <div style="margin-bottom: 0.4rem;">
+              <span style="font-size:0.8rem; color:#6B7280;">フォーム区分</span><br>
+              <strong id="confirmFormType" style="color:#111827;"></strong>
+            </div>
+
+            <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
+
+            <!-- あなたについて -->
+            <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">👤 あなたについて</p>
+            <div class="confirm-row"><span class="confirm-label">お名前</span><span id="confirmName" class="confirm-value"></span></div>
+            <div class="confirm-row"><span class="confirm-label">フリガナ</span><span id="confirmNameKana" class="confirm-value"></span></div>
+            <div class="confirm-row"><span class="confirm-label">生年月日</span><span id="confirmBirth" class="confirm-value"></span></div>
+            <div class="confirm-row"><span class="confirm-label">ご住所</span><span id="confirmAddress" class="confirm-value"></span></div>
+
+            <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
+
+            <!-- 緊急連絡先 -->
+            <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">🚨 緊急連絡先</p>
+            <div class="confirm-row"><span class="confirm-label">お名前</span><span id="confirmEmgName" class="confirm-value"></span></div>
+            <div class="confirm-row"><span class="confirm-label">続き柄</span><span id="confirmEmgRelation" class="confirm-value"></span></div>
+            <div class="confirm-row"><span class="confirm-label">電話番号</span><span id="confirmEmgPhone" class="confirm-value"></span></div>
+            <div class="confirm-row"><span class="confirm-label">ご住所</span><span id="confirmEmgAddress" class="confirm-value"></span></div>
+
+            <!-- 家族情報 -->
+            <div id="confirmFamilySection" style="display:none;">
+              <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
+              <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">👥 ご家族について</p>
+              <div id="confirmFamilyList"></div>
+            </div>
+          </div>
+
+          <p style="font-size: 0.82rem; color: #9CA3AF; margin-bottom: 1.2rem;">
+            ※この内容を後から変更したい場合は、「最初の画面にもどる」から「今の情報を変更する」フォームを送信してください。
+          </p>
           <button id="btnReload" class="menu-btn secondary-btn mt-2">最初の画面にもどる</button>
         </div>
       </main>

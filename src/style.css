@@ -539,3 +539,43 @@ input:focus, select:focus {
 .toggle-btn:active {
   transform: translateY(0);
 }
+
+/* ===== 送信完了後の確認画面スタイル ===== */
+/* 確認画面の1行分のレイアウト */
+.confirm-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+}
+
+/* 左側のラベル部分（「お名前」「ご住所」など） */
+.confirm-label {
+  flex-shrink: 0;
+  width: 6em;
+  color: #6B7280;
+  font-size: 0.82rem;
+  padding-top: 0.05rem;
+}
+
+/* 右側の実際の入力値 */
+.confirm-value {
+  font-weight: 700;
+  color: #111827;
+  word-break: break-all;
+}
+
+/* 成功アイコンのアニメーション */
+.success-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  display: block;
+  text-align: center;
+  animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
