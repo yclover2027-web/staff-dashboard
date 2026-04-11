@@ -64,12 +64,15 @@ const salaryModal = document.getElementById('salaryModal') as HTMLDivElement;
 const btnCancelSalary = document.getElementById('btnCancelSalary') as HTMLButtonElement;
 const salaryForm = document.getElementById('salaryForm') as HTMLFormElement;
 const salaryTargetEmpName = document.getElementById('salaryTargetEmpName') as HTMLParagraphElement;
-const submitSalaryBtn = document.getElementById('submitSalaryBtn') as HTMLButtonElement;
+const btnSubmitSalary = document.getElementById('btnSubmitSalary') as HTMLButtonElement; // ID修正
+const submitSalaryText = document.getElementById('submitSalaryText') as HTMLSpanElement;
+const submitSalaryLoader = document.getElementById('submitSalaryLoader') as HTMLDivElement;
 
 // State
 let appData: any = { employees: [], families: [], salaries: [] };
 let currentPassword = "";
 let currentSelectedEmpId = "";
+let isFamilyExpanded = false; // 家族構成の展開状態
 
 // ヘルパー：日付フォーマット（T15:00:00.000Z などのUTCズレを日本時間で綺麗に表示する）
 function formatDateString(dateVal: any): string {
@@ -241,6 +244,9 @@ function renderEmployeeList() {
 
 // 従業員詳細の表示
 function selectEmployee(empId: string) {
+  if (currentSelectedEmpId !== empId) {
+    isFamilyExpanded = false; // 別の社員を選んだらリセット
+  }
   currentSelectedEmpId = empId;
   renderEmployeeList(); // アクティブ表示更新
 
@@ -309,13 +315,45 @@ function selectEmployee(empId: string) {
   detailEmgAddress.textContent = emp['緊急連絡先_住所'] || '-';
 
   // 家族リストの抽出と描画
-  const myFamilies = appData.families.filter((f: any) => f['従業員ID'] === empId);
+  let myFamilies = appData.families.filter((f: any) => f['従業員ID'] === empId);
+  
+  // 年齢順（年長者から順）にソート
+  myFamilies.sort((a: any, b: any) => {
+    const getBirthYear = (fam: any) => {
+      const bStr = fam['生年月日'] || '';
+      if (!bStr) return 9999;
+      if (bStr.includes('不明')) {
+        const matches = bStr.match(/\d+/);
+        if (matches) {
+          const age = parseInt(matches[0]);
+          return new Date().getFullYear() - age; 
+        }
+        return 9999;
+      }
+      const d = new Date(bStr);
+      return isNaN(d.getTime()) ? 9999 : d.getFullYear();
+    };
+    // 年度が小さい（1960年とか）ほうが年長なので、a - b で昇順ソート＝年長者順
+    const yearA = getBirthYear(a);
+    const yearB = getBirthYear(b);
+    if (yearA !== yearB) return yearA - yearB;
+    
+    // 年が同じなら日付で比較
+    return new Date(a['生年月日']).getTime() - new Date(b['生年月日']).getTime();
+  });
+
   familyList.innerHTML = '';
+  const displayFamilies = isFamilyExpanded ? myFamilies : myFamilies.slice(0, 3);
+
   if (myFamilies.length > 0) {
     noFamilyMsg.style.display = 'none';
-    myFamilies.forEach((fam: any) => {
+    
+    // グリッドレイアウト用のクラスを追加
+    familyList.className = 'sub-list family-grid';
+    
+    displayFamilies.forEach((fam: any) => {
       const li = document.createElement('li');
-      li.className = 'sub-item';
+      li.className = 'sub-item family-card';
       const famAge = calculateAge(fam['生年月日']);
       const famFormattedBirth = formatDateString(fam['生年月日']);
       li.innerHTML = `
@@ -328,6 +366,26 @@ function selectEmployee(empId: string) {
       `;
       familyList.appendChild(li);
     });
+
+    // 「もっと見る」ボタンの制御
+    const existingToggle = document.getElementById('btnToggleFamily');
+    if (existingToggle) existingToggle.parentElement?.remove(); // 重複防止
+
+    if (myFamilies.length > 3) {
+      const toggleDiv = document.createElement('div');
+      toggleDiv.className = 'family-toggle-container';
+      toggleDiv.innerHTML = `
+        <button id="btnToggleFamily" class="toggle-btn">
+          ${isFamilyExpanded ? '🔼 閉じる' : `🔽 もっと見る (あと ${myFamilies.length - 3}人)`}
+        </button>
+      `;
+      familyList.after(toggleDiv); // <ul>の直後(外)に追加
+      
+      document.getElementById('btnToggleFamily')?.addEventListener('click', () => {
+        isFamilyExpanded = !isFamilyExpanded;
+        selectEmployee(empId); // 再描画
+      });
+    }
     
     // 家族削除イベントのバインド
     document.querySelectorAll('.btnDeleteFamily').forEach(btn => {
@@ -338,6 +396,8 @@ function selectEmployee(empId: string) {
     });
   } else {
     noFamilyMsg.style.display = 'block';
+    const existingToggle = document.getElementById('btnToggleFamily');
+    if (existingToggle) existingToggle.parentElement?.remove();
   }
 
   // 給与履歴の抽出と描画
@@ -559,8 +619,9 @@ commaInputs.forEach(input => {
 salaryForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   
-  submitSalaryBtn.disabled = true;
-  submitSalaryBtn.textContent = '⏳ 保存中...';
+  btnSubmitSalary.disabled = true;
+  submitSalaryText.textContent = '⏳ 保存中...';
+  submitSalaryLoader.style.display = 'inline-block';
 
   try {
     const applyDate = (document.getElementById('salApplyDate') as HTMLInputElement).value;
@@ -611,8 +672,9 @@ salaryForm.addEventListener('submit', async (e) => {
   } catch (err: any) {
     alert("エラーが発生しました: " + err.message);
   } finally {
-    submitSalaryBtn.disabled = false;
-    submitSalaryBtn.textContent = '💾 保存して蓄積する';
+    btnSubmitSalary.disabled = false;
+    submitSalaryText.textContent = '保存する';
+    submitSalaryLoader.style.display = 'none';
   }
 });
 

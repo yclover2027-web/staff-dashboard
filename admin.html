@@ -25,10 +25,16 @@
       .login-box input { width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid #ccc; font-size: 1.1rem; margin-bottom: 1.5rem; }
       
       /* ダッシュボード レイアウト */
-      #dashboard { display: none; flex: 1; overflow: hidden; height: 100vh; }
+      #dashboard { display: none; flex: 1; overflow: hidden; height: 100vh; flex-direction: column; }
+      @media(min-width: 768px) {
+        #dashboard { flex-direction: row; }
+      }
       .sidebar {
-        width: 300px; background: rgba(255, 255, 255, 0.9); border-right: 1px solid rgba(0,0,0,0.05);
-        display: flex; flex-direction: column; overflow-y: auto; padding: 1.5rem;
+        width: 100%; background: rgba(255, 255, 255, 0.9); border-right: none; border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex; flex-direction: column; overflow-y: auto; padding: 1.5rem; max-height: 40vh;
+      }
+      @media(min-width: 768px) {
+        .sidebar { width: 300px; max-height: 100vh; border-right: 1px solid rgba(0,0,0,0.05); border-bottom: none; }
       }
       .sidebar h3 { color: #0f766e; margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; display: flex; align-items: center; justify-content: space-between; }
       .emp-list { list-style: none; padding: 0; margin: 0; }
