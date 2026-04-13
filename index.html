@@ -1,237 +1,261 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>クローバースタッフ ご登録フォーム</title>    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="app">
-      <header class="app-header">
-        <div class="header-content">
-          <h1>🍀 クローバースタッフ<br>ご登録フォーム</h1>
-        </div>
-      </header>
 
-      <main class="app-main">
-        <div id="topMenu" class="glass-form text-center">
-          <h2 class="soft-title">なにをしますか？</h2>
-          
-          <!-- 注意事項カード -->
-          <div class="notice-card" style="text-align: left; background: #FFFBEB; border: 1px solid #FEF3C7; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: #92400E;">
-            <p style="font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center;">
-              <span style="font-size: 1.2rem; margin-right: 0.5rem;">⚠️</span> ご利用前の注意
-            </p>
-            <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.5;">
-              <li><strong>初回回答時</strong>は必ず「はじめて登録する」を選んでください。</li>
-              <li><strong>誤入力の削除・情報変更</strong>時は祐樹・一樹へ連絡してください。</li>
-              <li>初回回答時に<strong>入力漏れで追加</strong>する際も「今の情報を変更する」から行ってください。</li>
-            </ul>
-          </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>クローバースタッフ ご登録フォーム</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
 
-          <p class="section-desc mb-2">ご希望のボタンをえらんでくださいね。</p>
-          <div class="menu-actions">
-            <button id="btnNew" class="menu-btn primary-btn">
-              <span class="icon">✨</span> はじめて登録する
-            </button>
-            <button id="btnUpdate" class="menu-btn secondary-btn">
-              <span class="icon">🔄</span> 今の情報を変更する
-            </button>
-          </div>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div class="header-content">
+        <h1>🍀 クローバースタッフ<br>ご登録フォーム</h1>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <div id="topMenu" class="glass-form text-center">
+        <h2 class="soft-title">なにをしますか？</h2>
+
+        <!-- 注意事項カード -->
+        <div class="notice-card"
+          style="text-align: left; background: #FFFBEB; border: 1px solid #FEF3C7; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: #92400E;">
+          <p style="font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center;">
+            <span style="font-size: 1.2rem; margin-right: 0.5rem;">⚠️</span> ご利用前の注意
+          </p>
+          <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.5;">
+            <li><strong>初回回答時</strong>は必ず「はじめて登録する」を選んでください。</li>
+            <li><strong>誤入力の削除・情報変更</strong>時は祐樹・一樹へ連絡してください。</li>
+            <li>初回回答時に<strong>入力漏れで追加</strong>する際も「今の情報を変更する」から行ってください。</li>
+          </ul>
         </div>
 
-        <form id="registrationForm" class="glass-form" style="display: none;">
-          <button type="button" id="btnBack" class="back-btn">← 最初の画面にもどる</button>
-          
-          <h2 id="formTitle" class="form-main-title">✨ 新規登録フォーム</h2>
-          <input type="hidden" id="formType" name="formType" value="new">
-          
-          <!-- 従業員情報 -->
-          <section class="form-section">
-            <h2 class="section-title">
-              <span class="icon">👤</span> あなたについて
-            </h2>
-            <div class="form-group">
-              <label for="empName">お名前 <span class="req-badge required">必須</span></label>
-              <input type="text" id="empName" name="empName" placeholder="（例）山田 太郎" autocomplete="name" required />
+        <p class="section-desc mb-2">ご希望のボタンをえらんでくださいね。</p>
+        <div class="menu-actions">
+          <button id="btnNew" class="menu-btn primary-btn">
+            <span class="icon">✨</span> はじめて登録する
+          </button>
+          <button id="btnUpdate" class="menu-btn secondary-btn">
+            <span class="icon">🔄</span> 今の情報を変更する
+          </button>
+        </div>
+      </div>
+
+      <form id="registrationForm" class="glass-form" style="display: none;">
+        <button type="button" id="btnBack" class="back-btn">← 最初の画面にもどる</button>
+
+        <h2 id="formTitle" class="form-main-title">✨ 新規登録フォーム</h2>
+        <input type="hidden" id="formType" name="formType" value="new">
+
+        <!-- 従業員情報 -->
+        <section class="form-section">
+          <h2 class="section-title">
+            <span class="icon">👤</span> あなたについて
+          </h2>
+          <div class="form-group">
+            <label for="empName">お名前 <span class="req-badge required">必須</span></label>
+            <input type="text" id="empName" name="empName" placeholder="（例）山田 太郎" autocomplete="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="empNameKana">フリガナ <span class="req-badge required">必須</span></label>
+            <input type="text" id="empNameKana" name="empNameKana" placeholder="（例）ヤマダ タロウ" pattern="^[ァ-ヴー\s　]+$"
+              title="全角カタカナで入力してください" autocomplete="off" required />
+          </div>
+
+          <div class="form-group">
+            <label id="labelEmpBirth">生年月日 <span class="req-badge required">必須</span></label>
+            <div class="date-picker-group">
+              <select id="empYear" name="empYear" required></select> <span class="date-label">年</span>
+              <select id="empMonth" name="empMonth" required></select> <span class="date-label">月</span>
+              <select id="empDay" name="empDay" required></select> <span class="date-label">日</span>
             </div>
-            
-            <div class="form-group">
-              <label for="empNameKana">フリガナ <span class="req-badge required">必須</span></label>
-              <input type="text" id="empNameKana" name="empNameKana" placeholder="（例）ヤマダ タロウ" pattern="^[ァ-ヴー\s　]+$" title="全角カタカナで入力してください" autocomplete="off" required />
+            <div id="empAgeDisplay"
+              style="color: #0D9488; font-weight: 700; margin-top: 0.5rem; text-align: right; font-size: 0.95rem;">
             </div>
-            
-            <div class="form-group">
-              <label id="labelEmpBirth">生年月日 <span class="req-badge required">必須</span></label>
-              <div class="date-picker-group">
-                <select id="empYear" name="empYear" required></select> <span class="date-label">年</span>
-                <select id="empMonth" name="empMonth" required></select> <span class="date-label">月</span>
-                <select id="empDay" name="empDay" required></select> <span class="date-label">日</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="empZip">郵便番号 <span class="req-badge required">必須</span></label>
+              <div class="input-with-button">
+                <input type="text" id="empZip" name="empZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$"
+                  autocomplete="postal-code" required />
+                <button type="button" id="empZipSearch" class="search-btn">住所をさがす</button>
               </div>
-              <div id="empAgeDisplay" style="color: #0D9488; font-weight: 700; margin-top: 0.5rem; text-align: right; font-size: 0.95rem;"></div>
             </div>
-            
+          </div>
+
+          <div class="form-group">
+            <label for="empAddress">ご住所 <span class="req-badge required">必須</span></label>
+            <input type="text" id="empAddress" name="empAddress" placeholder="（例）東京都千代田区千代田1-1"
+              autocomplete="street-address" required />
+          </div>
+        </section>
+
+        <!-- 緊急連絡先 -->
+        <section class="form-section">
+          <h2 class="section-title">
+            <span class="icon">🚨</span> 緊急連絡先
+          </h2>
+          <p class="section-desc">万が一の際にご連絡する方をおしえてください。</p>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="emgName">お名前 <span class="req-badge required">必須</span></label>
+              <input type="text" id="emgName" name="emgName" placeholder="（例）山田 花子" required />
+            </div>
+            <div class="form-group flex-1">
+              <label for="emgRelation">続き柄（関係） <span class="req-badge required">必須</span></label>
+              <input type="text" id="emgRelation" name="emgRelation" placeholder="（例）妻、父 など" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="emgPhone">お電話番号 <span class="req-badge required">必須</span></label>
+            <input type="tel" id="emgPhone" name="emgPhone" placeholder="090-0000-0000" autocomplete="tel" required />
+          </div>
+
+          <div class="form-group mb-2 mt-2">
+            <label class="checkbox-label"
+              style="cursor: pointer; display: flex; align-items: center; border: 2px dashed #80CBC4; padding: 1rem; border-radius: 12px; background: #F0FDFA; transition: all 0.2s;">
+              <input type="checkbox" id="emgSameAsEmp"
+                style="transform: scale(1.4); margin-right: 0.8rem; accent-color: var(--primary);">
+              <span style="font-weight: bold; color: #0D9488; font-size: 1.05rem;">🏠 ご自身の住所と同じにする</span>
+            </label>
+          </div>
+
+          <div id="emgAddressGroup">
             <div class="form-row">
               <div class="form-group flex-1">
-                <label for="empZip">郵便番号 <span class="req-badge required">必須</span></label>
+                <label for="emgZip">郵便番号 <span class="req-badge required">必須</span></label>
                 <div class="input-with-button">
-                  <input type="text" id="empZip" name="empZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" autocomplete="postal-code" required />
-                  <button type="button" id="empZipSearch" class="search-btn">住所をさがす</button>
+                  <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$"
+                    autocomplete="postal-code" required />
+                  <button type="button" id="emgZipSearch" class="search-btn">住所をさがす</button>
                 </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="empAddress">ご住所 <span class="req-badge required">必須</span></label>
-              <input type="text" id="empAddress" name="empAddress" placeholder="（例）東京都千代田区千代田1-1" autocomplete="street-address" required />
+              <label for="emgAddress">ご住所 <span class="req-badge required">必須</span></label>
+              <input type="text" id="emgAddress" name="emgAddress" placeholder="（例）東京都千代田区千代田1-1"
+                autocomplete="street-address" required />
             </div>
-          </section>
+          </div>
+        </section>
+
+        <!-- 家族情報 -->
+        <section class="form-section">
+          <h2 class="section-title">
+            <span class="icon">👥</span> ご家族について (当てはまる方のみ)
+          </h2>
+          <div class="info-box">
+            <p>※報告が必要な家族範囲：<br>
+              <strong>本人の 0・1親等</strong>（2親等は同居のみ）、<br>
+              および <strong>配偶者の 1親等</strong> までです。
+            </p>
+            <button type="button" id="btnShowFamilyTree" class="link-btn">🔍 親等早見表を見る</button>
+          </div>
+
+          <div id="familyContainer">
+            <!-- 動的に追加される -->
+          </div>
+
+          <button type="button" id="addFamilyBtn" class="add-btn mt-1">
+            <span>+</span> 家族を追加する
+          </button>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" id="submitBtn" class="submit-btn primary-btn">
+            <span id="submitText">この内容で送信する 🕊️</span>
+            <div class="loader" id="submitLoader" style="display: none;"></div>
+          </button>
+        </div>
+        <div id="errorMessage" class="error-message" style="display: none;">
+          <p>送信に失敗しました💦 もう一度お試しください。</p>
+        </div>
+      </form>
+
+      <div id="successMessage" class="glass-form" style="display: none;">
+        <div class="success-icon">✨</div>
+        <h3 style="color: var(--primary); font-size: 1.4rem; margin-bottom: 0.3rem;">受付が完了しました！</h3>
+        <p style="color: #6B7280; margin-bottom: 1.5rem;">情報のご提供ありがとうございました😊<br>
+          <strong style="color: #0D9488;">📸 下記の内容をスクリーンショットで保存しておくと安心です！</strong>
+        </p>
+
+        <!-- 送信内容の確認リスト -->
+        <div id="confirmSummary"
+          style="text-align: left; background: #F0FDFA; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem; border: 1.5px solid #CCFBF1;">
+
+          <h4 style="color: #0D9488; margin-bottom: 1rem; border-bottom: 2px solid #CCFBF1; padding-bottom: 0.5rem;">
+            📋 送信した内容の確認
+          </h4>
+
+          <!-- フォーム区分 -->
+          <div style="margin-bottom: 0.4rem;">
+            <span style="font-size:0.8rem; color:#6B7280;">フォーム区分</span><br>
+            <strong id="confirmFormType" style="color:#111827;"></strong>
+          </div>
+
+          <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
+
+          <!-- あなたについて -->
+          <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">👤 あなたについて</p>
+          <div class="confirm-row"><span class="confirm-label">お名前</span><span id="confirmName"
+              class="confirm-value"></span></div>
+          <div class="confirm-row"><span class="confirm-label">フリガナ</span><span id="confirmNameKana"
+              class="confirm-value"></span></div>
+          <div class="confirm-row"><span class="confirm-label">生年月日</span><span id="confirmBirth"
+              class="confirm-value"></span></div>
+          <div class="confirm-row"><span class="confirm-label">ご住所</span><span id="confirmAddress"
+              class="confirm-value"></span></div>
+
+          <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
 
           <!-- 緊急連絡先 -->
-          <section class="form-section">
-            <h2 class="section-title">
-              <span class="icon">🚨</span> 緊急連絡先
-            </h2>
-            <p class="section-desc">万が一の際にご連絡する方をおしえてください。</p>
-
-            <div class="form-row">
-              <div class="form-group flex-1">
-                <label for="emgName">お名前 <span class="req-badge required">必須</span></label>
-                <input type="text" id="emgName" name="emgName" placeholder="（例）山田 花子" required />
-              </div>
-              <div class="form-group flex-1">
-                <label for="emgRelation">続き柄（関係） <span class="req-badge required">必須</span></label>
-                <input type="text" id="emgRelation" name="emgRelation" placeholder="（例）妻、父 など" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="emgPhone">お電話番号 <span class="req-badge required">必須</span></label>
-              <input type="tel" id="emgPhone" name="emgPhone" placeholder="090-0000-0000" autocomplete="tel" required />
-            </div>
-
-            <div class="form-group mb-2 mt-2">
-              <label class="checkbox-label" style="cursor: pointer; display: flex; align-items: center; border: 2px dashed #80CBC4; padding: 1rem; border-radius: 12px; background: #F0FDFA; transition: all 0.2s;">
-                <input type="checkbox" id="emgSameAsEmp" style="transform: scale(1.4); margin-right: 0.8rem; accent-color: var(--primary);"> 
-                <span style="font-weight: bold; color: #0D9488; font-size: 1.05rem;">🏠 ご自身の住所と同じにする</span>
-              </label>
-            </div>
-
-            <div id="emgAddressGroup">
-              <div class="form-row">
-                <div class="form-group flex-1">
-                  <label for="emgZip">郵便番号 <span class="req-badge required">必須</span></label>
-                  <div class="input-with-button">
-                    <input type="text" id="emgZip" name="emgZip" placeholder="1000001（ハイフンなし）" pattern="^[0-9]{7}$" autocomplete="postal-code" required />
-                    <button type="button" id="emgZipSearch" class="search-btn">住所をさがす</button>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label for="emgAddress">ご住所 <span class="req-badge required">必須</span></label>
-                <input type="text" id="emgAddress" name="emgAddress" placeholder="（例）東京都千代田区千代田1-1" autocomplete="street-address" required />
-              </div>
-            </div>
-          </section>
+          <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">🚨 緊急連絡先</p>
+          <div class="confirm-row"><span class="confirm-label">お名前</span><span id="confirmEmgName"
+              class="confirm-value"></span></div>
+          <div class="confirm-row"><span class="confirm-label">続き柄</span><span id="confirmEmgRelation"
+              class="confirm-value"></span></div>
+          <div class="confirm-row"><span class="confirm-label">電話番号</span><span id="confirmEmgPhone"
+              class="confirm-value"></span></div>
+          <div class="confirm-row"><span class="confirm-label">ご住所</span><span id="confirmEmgAddress"
+              class="confirm-value"></span></div>
 
           <!-- 家族情報 -->
-          <section class="form-section">
-            <h2 class="section-title">
-              <span class="icon">👥</span> ご家族について (当てはまる方のみ)
-            </h2>
-            <div class="info-box">
-              <p>※報告が必要な家族範囲：<br>
-              <strong>本人の 0・1親等</strong>（2親等は同居のみ）、<br>
-              または <strong>配偶者の 1親等</strong> までです。</p>
-              <button type="button" id="btnShowFamilyTree" class="link-btn">🔍 親等早見表を見る</button>
-            </div>
-            
-            <div id="familyContainer">
-              <!-- 動的に追加される -->
-            </div>
-
-            <button type="button" id="addFamilyBtn" class="add-btn mt-1">
-              <span>+</span> 家族を追加する
-            </button>
-          </section>
-
-          <div class="form-actions">
-            <button type="submit" id="submitBtn" class="submit-btn primary-btn">
-              <span id="submitText">この内容で送信する 🕊️</span>
-              <div class="loader" id="submitLoader" style="display: none;"></div>
-            </button>
-          </div>
-          <div id="errorMessage" class="error-message" style="display: none;">
-            <p>送信に失敗しました💦 もう一度お試しください。</p>
-          </div>
-        </form>
-
-        <div id="successMessage" class="glass-form" style="display: none;">
-          <div class="success-icon">✨</div>
-          <h3 style="color: var(--primary); font-size: 1.4rem; margin-bottom: 0.3rem;">受付が完了しました！</h3>
-          <p style="color: #6B7280; margin-bottom: 1.5rem;">情報のご提供ありがとうございました😊<br>
-          <strong style="color: #0D9488;">📸 下記の内容をスクリーンショットで保存しておくと安心です！</strong></p>
-
-          <!-- 送信内容の確認リスト -->
-          <div id="confirmSummary" style="text-align: left; background: #F0FDFA; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem; border: 1.5px solid #CCFBF1;">
-            
-            <h4 style="color: #0D9488; margin-bottom: 1rem; border-bottom: 2px solid #CCFBF1; padding-bottom: 0.5rem;">
-              📋 送信した内容の確認
-            </h4>
-
-            <!-- フォーム区分 -->
-            <div style="margin-bottom: 0.4rem;">
-              <span style="font-size:0.8rem; color:#6B7280;">フォーム区分</span><br>
-              <strong id="confirmFormType" style="color:#111827;"></strong>
-            </div>
-
+          <div id="confirmFamilySection" style="display:none;">
             <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
-
-            <!-- あなたについて -->
-            <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">👤 あなたについて</p>
-            <div class="confirm-row"><span class="confirm-label">お名前</span><span id="confirmName" class="confirm-value"></span></div>
-            <div class="confirm-row"><span class="confirm-label">フリガナ</span><span id="confirmNameKana" class="confirm-value"></span></div>
-            <div class="confirm-row"><span class="confirm-label">生年月日</span><span id="confirmBirth" class="confirm-value"></span></div>
-            <div class="confirm-row"><span class="confirm-label">ご住所</span><span id="confirmAddress" class="confirm-value"></span></div>
-
-            <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
-
-            <!-- 緊急連絡先 -->
-            <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">🚨 緊急連絡先</p>
-            <div class="confirm-row"><span class="confirm-label">お名前</span><span id="confirmEmgName" class="confirm-value"></span></div>
-            <div class="confirm-row"><span class="confirm-label">続き柄</span><span id="confirmEmgRelation" class="confirm-value"></span></div>
-            <div class="confirm-row"><span class="confirm-label">電話番号</span><span id="confirmEmgPhone" class="confirm-value"></span></div>
-            <div class="confirm-row"><span class="confirm-label">ご住所</span><span id="confirmEmgAddress" class="confirm-value"></span></div>
-
-            <!-- 家族情報 -->
-            <div id="confirmFamilySection" style="display:none;">
-              <hr style="border: none; border-top: 1px dashed #CCFBF1; margin: 0.8rem 0;">
-              <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">👥 ご家族について</p>
-              <div id="confirmFamilyList"></div>
-            </div>
+            <p style="font-weight:bold; color:#0D9488; margin-bottom:0.5rem;">👥 ご家族について</p>
+            <div id="confirmFamilyList"></div>
           </div>
-
-          <p style="font-size: 0.82rem; color: #9CA3AF; margin-bottom: 1.2rem;">
-            ※この内容を後から変更したい場合は、「最初の画面にもどる」から「今の情報を変更する」フォームを送信してください。
-          </p>
-          <button id="btnReload" class="menu-btn secondary-btn mt-2">最初の画面にもどる</button>
         </div>
-      </main>
-    </div>
 
-    <!-- モーダル（親等早見表） -->
-    <div id="familyTreeModal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal" id="closeModal">&times;</span>
-        <h3 class="modal-title">親等早見表</h3>
-        <img src="/family-tree.png" alt="親等早見表" class="modal-img" />
+        <p style="font-size: 0.82rem; color: #9CA3AF; margin-bottom: 1.2rem;">
+          ※この内容を後から変更したい場合は、「最初の画面にもどる」から「今の情報を変更する」フォームを送信してください。
+        </p>
+        <button id="btnReload" class="menu-btn secondary-btn mt-2">最初の画面にもどる</button>
       </div>
-    </div>
+    </main>
+  </div>
 
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+  <!-- モーダル（親等早見表） -->
+  <div id="familyTreeModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeModal">&times;</span>
+      <h3 class="modal-title">親等早見表</h3>
+      <img src="/family-tree.png" alt="親等早見表" class="modal-img" />
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>
